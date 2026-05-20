@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Challenging the Call: MLB's ABS Revolution | DSC 106 Final Project</title>
+  <style>
+    :root {
+      --dark:    #0f1117;
+      --panel:   #1a1d26;
+      --border:  #2a2d3a;
+      --text:    #e8eaf0;
+      --muted:   #8892a4;
+      --accent:  #e63946;
+      --blue:    #457b9d;
+      --green:   #2a9d8f;
+      --yellow:  #e9c46a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 17px;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0f1117 0%, #1a1d26 50%, #0f1117 100%);
+      border-bottom: 2px solid var(--yellow);
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'Georgia', serif;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+      max-width: 800px;
+      margin: 0 auto 16px;
+      line-height: 1.2;
+    }
+    .hero h1 span { color: var(--yellow); }
+    .hero p.sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 640px;
+      margin: 0 auto 28px;
+    }
+    .team-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .team-chip {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .course-info {
+      margin-top: 28px;
+      font-size: 12px;
+      color: #555;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section {
+      padding: 64px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    section:last-child { border-bottom: none; }
+
+    h2 {
+      font-size: 1.65rem;
+      color: var(--yellow);
+      margin-bottom: 18px;
+      font-family: 'Georgia', serif;
+    }
+    h3 {
+      font-size: 1.1rem;
+      color: var(--text);
+      margin: 28px 0 10px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    p { margin-bottom: 18px; color: #ccd; }
+
+    strong { color: var(--yellow); font-weight: 600; }
+    em     { color: var(--green); font-style: normal; }
+
+    /* ── Dataset card ─────────────────────────────────────────── */
+    .dataset-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--blue);
+      border-radius: 6px;
+      padding: 24px 28px;
+      margin: 24px 0;
+    }
+    .dataset-card .ds-title {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .ds-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .ds-meta-item { text-align: center; }
+    .ds-meta-item .val {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--yellow);
+      display: block;
+    }
+    .ds-meta-item .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+
+    /* ── Figures ──────────────────────────────────────────────── */
+    .figure-block {
+      margin: 40px 0;
+    }
+    .fig-caption {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--yellow);
+      border-radius: 0 0 6px 6px;
+      padding: 14px 20px;
+    }
+    .fig-caption .fig-label {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--yellow);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+    .fig-caption p {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .fig-img {
+      width: 100%;
+      display: block;
+      border-radius: 6px 6px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+
+    /* ── Proposal writeup box ────────────────────────────────── */
+    .writeup-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 32px;
+      margin-top: 24px;
+    }
+    .writeup-box ul {
+      padding-left: 22px;
+      color: #ccd;
+    }
+    .writeup-box li { margin-bottom: 10px; }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    footer {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 12px;
+      color: #555;
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="badge">DSC 106 · Final Project Proposal</div>
+  <h1>Challenging the Call:<br><span>MLB's ABS Revolution</span></h1>
+  <p class="sub">
+    How the Automated Ball-Strike system is changing the rules of baseball —
+    pitch by pitch, challenge by challenge.
+  </p>
+  <div class="team-row">
+    <span class="team-chip">Andrew Zaletski</span>
+    <span class="team-chip">Team Member 2</span>
+    <span class="team-chip">Team Member 3</span>
+    <span class="team-chip">Team Member 4</span>
+  </div>
+  <p class="course-info">DSC 106 · University of California, San Diego · Spring 2026</p>
+</div>
+
+<div class="container">
+
+  <!-- ── Project Overview ──────────────────────────────────────────────────── -->
+  <section>
+    <h2>The Hook</h2>
+    <p>
+      For 150 years, baseball's most contested moment — the ball-or-strike call — has lived
+      entirely in the hands of a human umpire. In 2026, that changed forever.
+      <strong>The MLB's Automated Ball-Strike (ABS) Challenge System</strong>, powered by
+      Hawk-Eye camera technology, gives every batter and pitcher a tool that no player
+      has ever had: the ability to appeal to a machine.
+    </p>
+    <p>
+      The rules are simple. Each team gets <strong>three challenges per game</strong>.
+      If a batter thinks a pitch was called incorrectly, they can freeze — tap the helmet —
+      and within seconds, the ABS system renders its verdict using 12 cameras tracking
+      the ball to a fraction of an inch. Challenges that succeed preserve the challenge count.
+      Challenges that fail cost one. The result? A new layer of chess embedded in every
+      at-bat, where reading the zone is now as valuable as reading a pitcher's spin.
+    </p>
+    <p>
+      Our project builds an <em>explorable explanation</em> of exactly how ABS is
+      reshaping the game — who challenges, when they challenge, whether they win,
+      and what it all means for outcomes that actually matter.
+    </p>
+  </section>
+
+  <!-- ── Dataset ───────────────────────────────────────────────────────────── -->
+  <section>
+    <h2>Dataset</h2>
+    <div class="dataset-card">
+      <div class="ds-title">Primary Dataset</div>
+      <strong>Baseball Savant — ABS Challenge Leaderboard + Statcast Pitch Data (2026 MLB Season)</strong>
+      <p style="margin-top:10px; font-size:15px; color: var(--muted);">
+        Two complementary datasets from MLB's official Statcast platform at
+        <em>baseballsavant.mlb.com</em>. The ABS leaderboard provides per-player
+        challenge statistics (overturn rates, value added, outcome flips).
+        The Statcast pitch feed provides pitch-by-pitch location data for the full
+        2026 season, including <code style="background:#222;padding:2px 5px;border-radius:3px;color:var(--green)">automatic_ball</code>
+        and <code style="background:#222;padding:2px 5px;border-radius:3px;color:var(--green)">automatic_strike</code>
+        descriptions where ABS overrode the umpire's call.
+      </p>
+      <div class="ds-meta">
+        <div class="ds-meta-item">
+          <span class="val">69,042</span>
+          <span class="lbl">Pitches (2026 to date)</span>
+        </div>
+        <div class="ds-meta-item">
+          <span class="val">359</span>
+          <span class="lbl">MLB Batters tracked</span>
+        </div>
+        <div class="ds-meta-item">
+          <span class="val">118</span>
+          <span class="lbl">Statcast columns per pitch</span>
+        </div>
+      </div>
+    </div>
+    <p>
+      All data is fetched live from Baseball Savant's public CSV export endpoints and
+      refreshed via our <code style="background:#222;padding:2px 5px;border-radius:3px;color:var(--green)">fetch_data.py</code>
+      pipeline. No data is synthetic — every row represents a real pitch or real challenge
+      from the 2026 MLB regular season.
+    </p>
+  </section>
+
+  <!-- ── Proposal Writeup ──────────────────────────────────────────────────── -->
+  <section>
+    <h2>Project Plan</h2>
+    <div class="writeup-box">
+
+      <h3>What we intend to do</h3>
+      <p>
+        We will build an interactive explorable explanation that takes a reader through
+        the story of ABS from first principles — what the system is, why it matters,
+        and what the 2026 season data reveals about how players, teams, and umpires are
+        adapting. The page will open with an animated strike zone visualization that
+        immediately shows the gap between where umpires call strikes and where the
+        ABS system does, making the entire motivation visceral before a single word of
+        explanation is read. From there, scrollytelling panels will guide the reader
+        through team-level strategy differences, individual batter decision-making quality,
+        and the downstream impact on strikeout and walk rates — the outcomes that matter
+        most in the modern game.
+      </p>
+      <p>
+        All major visualizations will use <strong>D3.js</strong> with interactive
+        brushing, filtering, and tooltip layers. The final deliverable will be a
+        GitHub Pages site that fetches fresh data automatically.
+      </p>
+
+      <h3>Planned interactive visualizations</h3>
+      <ul>
+        <li>
+          <strong>Dual Strike Zone Map (anchor viz)</strong> — Two side-by-side
+          hexbin heatmaps: umpire-called strikes vs. ABS zone pitches.
+          Interactive batter stance toggle (L/R) and pitch type filter.
+        </li>
+        <li>
+          <strong>Team Challenge Leaderboard</strong> — Animated horizontal bar chart
+          of all 30 MLB teams by challenge overturn rate, with tooltip showing
+          raw counts and outcome flips. Click-to-drill-down for roster-level detail.
+        </li>
+        <li>
+          <strong>Batter Decision-Making Scatter</strong> — Challenge frequency vs.
+          success rate for all qualified batters, colored by net value added.
+          Hover highlights and player search.
+        </li>
+        <li>
+          <strong>At-Bat Outcome Impact</strong> — Stacked bar chart of strikeouts
+          and walks flipped per team, with a cumulative "ABS wins above replacement
+          umpire" metric for each franchise.
+        </li>
+        <li>
+          <strong>Pitch-Level Challenge Timeline</strong> — Game-level scrollable
+          strip plot showing when challenges were made in each inning, colored by
+          outcome, with game situation context.
+        </li>
+      </ul>
+
+      <h3>What makes this challenging</h3>
+      <p>
+        The most technically challenging design decision is the <strong>dual strike
+        zone visualization</strong>. The ABS zone boundary shifts by batter height
+        (it's set individually per batter), while umpires use a perceptual zone that
+        varies by situation, count, and handedness. Overlaying these two "zones" in a
+        way that is honest to the data but intuitive to a non-technical reader — without
+        implying false precision — requires careful encoding choices. We will likely
+        use kernel density estimation to smooth the umpire zone and contrast it with
+        the sharp rectangular ABS boundary, while offering batter-level filtering to
+        reveal how much the zone actually moves per player. The secondary challenge is
+        data freshness: the 2026 season is ongoing, so our pipeline needs to fetch and
+        re-render data reliably for the final submission date.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Static Visualizations ────────────────────────────────────────────── -->
+  <section>
+    <h2>Static Visualizations</h2>
+    <p>
+      Five exploratory visualizations drawn from the live 2026 Baseball Savant data,
+      illustrating the key angles our interactive project will expand upon.
+    </p>
+
+    <div class="figure-block">
+      <img class="fig-img" src="figures/fig1_team_challenge_rate.png"
+           alt="Team Challenge Success Rate" />
+      <div class="fig-caption">
+        <div class="fig-label">Figure 1 — Team Challenge Success Rate</div>
+        <p>
+          Batter challenge overturn rates for all 30 MLB teams (minimum 20 team challenges),
+          ranked by success percentage. Texas leads the league at 63%; Milwaukee sits last
+          at 32%. The dashed line marks the MLB average (~47%), revealing which franchises
+          have already taught their hitters to pick their spots wisely.
+        </p>
+      </div>
+    </div>
+
+    <div class="figure-block">
+      <img class="fig-img" src="figures/fig2_batter_value_added.png"
+           alt="Batter Challenge Value Added" />
+      <div class="fig-caption">
+        <div class="fig-label">Figure 2 — Batter Challenge Value Added vs. Expected</div>
+        <p>
+          Net challenge value above expectation for qualified batters (min. 5 challenges).
+          Players on the right extracted more challenge equity than a random batter in the
+          same situations would; players on the left wasted challenges on low-probability
+          pitches. Davis Schneider (TOR) leads all MLB batters by a wide margin.
+        </p>
+      </div>
+    </div>
+
+    <div class="figure-block">
+      <img class="fig-img" src="figures/fig3_outcome_impact.png"
+           alt="K and BB Flipped by Team" />
+      <div class="fig-caption">
+        <div class="fig-label">Figure 3 — Game Outcomes Flipped by ABS Challenges</div>
+        <p>
+          Number of strikeouts avoided (called strike overturned to ball) versus
+          strikeouts gained (ball overturned to called strike) by team. The yellow line
+          shows net gain — Atlanta and Colorado have given back nearly as many strikeouts
+          as they've avoided, while Detroit and Los Angeles (NL) show strongly positive
+          net challenge returns.
+        </p>
+      </div>
+    </div>
+
+    <div class="figure-block">
+      <img class="fig-img" src="figures/fig4_strike_zone_heatmap.png"
+           alt="Strike Zone Heatmap" />
+      <div class="fig-caption">
+        <div class="fig-label">Figure 4 — Umpire Called Strikes vs. Edge-Zone Called Balls</div>
+        <p>
+          Hexbin density maps for 2026 regular season pitches. Left: where umpires are
+          calling strikes — note the shadow zone below the bottom boundary and the
+          generous inside corner. Right: called balls that landed within 3 inches of the
+          zone boundary — the high-probability challenge territory that well-trained
+          batters are now identifying in real time. The yellow rectangle marks the
+          true ABS strike zone.
+        </p>
+      </div>
+    </div>
+
+    <div class="figure-block">
+      <img class="fig-img" src="figures/fig5_challenge_scatter.png"
+           alt="Challenge Frequency vs Success Rate Scatter" />
+      <div class="fig-caption">
+        <div class="fig-label">Figure 5 — Challenge Frequency vs. Success Rate by Batter</div>
+        <p>
+          Each point is a qualified MLB batter (min. 4 challenges). The color axis
+          shows net value added — green batters are extracting positive value, red
+          batters are destroying it. The quadrant above average success rate / below
+          average frequency contains the most disciplined challengers; the bottom-right
+          quadrant reveals players who challenge often but poorly.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /container -->
+
+<footer>
+  <p>
+    DSC 106 Final Project — UC San Diego · Spring 2026<br />
+    Data: <a href="https://baseballsavant.mlb.com/leaderboard/abs-challenges" target="_blank">Baseball Savant ABS Leaderboard</a> &amp;
+    <a href="https://baseballsavant.mlb.com/statcast_search" target="_blank">Statcast Search</a> (2026 MLB Season, through May 18)
+  </p>
+</footer>
+
+</body>
+</html>
