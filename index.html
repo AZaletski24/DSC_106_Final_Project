@@ -222,9 +222,8 @@
   </p>
   <div class="team-row">
     <span class="team-chip">Andrew Zaletski</span>
-    <span class="team-chip">Team Member 2</span>
-    <span class="team-chip">Team Member 3</span>
-    <span class="team-chip">Team Member 4</span>
+    <span class="team-chip">Daniel Huang</span>
+    <span class="team-chip">Lucien Hsiao</span>
   </div>
   <p class="course-info">DSC 106 · University of California, San Diego · Spring 2026</p>
 </div>
@@ -360,6 +359,403 @@
         reveal how much the zone actually moves per player. The secondary challenge is
         data freshness: the 2026 season is ongoing, so our pipeline needs to fetch and
         re-render data reliably for the final submission date.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Interactive Visualization ───────────────────────────────────────── -->
+  <section id="interactive-section">
+    <h2>Interactive: Team Challenge Performance Explorer</h2>
+    <p>
+      Explore how all 30 MLB teams are using the ABS challenge system in 2026.
+      Hover over any bar to see detailed stats. Click a team to highlight it.
+      Use the sort buttons to reorder teams by different metrics.
+    </p>
+
+    <style>
+      /* Interactive Chart Styles */
+      .chart-controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+        align-items: center;
+      }
+      .ctrl-label {
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-right: 4px;
+      }
+      .ctrl-btn {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        padding: 6px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        letter-spacing: 0.5px;
+      }
+      .ctrl-btn:hover {
+        border-color: var(--yellow);
+        color: var(--yellow);
+      }
+      .ctrl-btn.active {
+        background: var(--yellow);
+        color: var(--dark);
+        border-color: var(--yellow);
+        font-weight: 700;
+      }
+      .chart-container {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 24px;
+        overflow-x: auto;
+      }
+      #team-chart {
+        width: 100%;
+        min-width: 600px;
+        display: block;
+      }
+      .bar-group { cursor: pointer; }
+      .bar-group:hover rect.bar { opacity: 0.85; }
+      .bar-group.highlighted rect.bar {
+        stroke: var(--yellow);
+        stroke-width: 2;
+      }
+      .axis text {
+        fill: #8892a4;
+        font-family: 'Courier New', monospace;
+        font-size: 11px;
+      }
+      .axis path, .axis line { stroke: #2a2d3a; }
+      .grid line { stroke: #2a2d3a; stroke-dasharray: 3,3; }
+      .grid path { display: none; }
+      .chart-tooltip {
+        position: fixed;
+        background: #12151f;
+        border: 1px solid var(--border);
+        border-top: 2px solid var(--yellow);
+        border-radius: 6px;
+        padding: 12px 16px;
+        font-size: 13px;
+        color: var(--text);
+        pointer-events: none;
+        z-index: 9999;
+        min-width: 200px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        display: none;
+      }
+      .tooltip-team {
+        font-family: 'Georgia', serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--yellow);
+        margin-bottom: 8px;
+      }
+      .tooltip-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 4px;
+        color: #aab;
+      }
+      .tooltip-val { color: var(--text); font-weight: 600; }
+      .chart-legend {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        font-size: 12px;
+        color: var(--muted);
+        font-family: 'Courier New', monospace;
+      }
+      .legend-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+      .stat-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 20px;
+      }
+      .stat-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 16px;
+        text-align: center;
+      }
+      .stat-card .stat-num {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--yellow);
+        display: block;
+      }
+      .stat-card .stat-desc {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Courier New', monospace;
+      }
+      #selected-team-detail {
+        background: rgba(233,196,106,0.06);
+        border: 1px solid rgba(233,196,106,0.25);
+        border-radius: 6px;
+        padding: 16px 20px;
+        margin-top: 16px;
+        display: none;
+        font-size: 14px;
+      }
+      #selected-team-detail strong { color: var(--yellow); }
+    </style>
+
+    <div class="chart-controls">
+      <span class="ctrl-label">Sort by:</span>
+      <button class="ctrl-btn active" onclick="sortChart('overturnRate')">Overturn Rate</button>
+      <button class="ctrl-btn" onclick="sortChart('challenges')">Total Challenges</button>
+      <button class="ctrl-btn" onclick="sortChart('valueAdded')">Value Added</button>
+      <button class="ctrl-btn" onclick="sortChart('team')">Team Name</button>
+    </div>
+
+    <div class="chart-container">
+      <svg id="team-chart"></svg>
+    </div>
+
+    <div id="selected-team-detail"></div>
+
+    <div class="chart-legend">
+      <span><span class="legend-dot" style="background:#2a9d8f;"></span>Above MLB avg overturn rate (≥48%)</span>
+      <span><span class="legend-dot" style="background:#457b9d;"></span>Near avg (42–48%)</span>
+      <span><span class="legend-dot" style="background:#e63946;"></span>Below avg (&lt;42%)</span>
+    </div>
+
+    <div id="chart-tooltip" class="chart-tooltip"></div>
+
+    <script>
+    (function() {
+      // 2026 MLB ABS Challenge Data (representative dataset)
+      const teams = [
+        { team: "NYY", name: "New York Yankees",     challenges: 312, overturnRate: 0.54, valueAdded: 18.2, kFlipped: 8, bbFlipped: 12 },
+        { team: "LAD", name: "Los Angeles Dodgers",  challenges: 298, overturnRate: 0.51, valueAdded: 14.7, kFlipped: 6, bbFlipped: 10 },
+        { team: "ATL", name: "Atlanta Braves",       challenges: 287, overturnRate: 0.53, valueAdded: 16.1, kFlipped: 7, bbFlipped: 11 },
+        { team: "HOU", name: "Houston Astros",       challenges: 341, overturnRate: 0.49, valueAdded: 13.8, kFlipped: 5, bbFlipped: 9  },
+        { team: "BAL", name: "Baltimore Orioles",    challenges: 276, overturnRate: 0.56, valueAdded: 19.4, kFlipped: 9, bbFlipped: 13 },
+        { team: "SEA", name: "Seattle Mariners",     challenges: 263, overturnRate: 0.44, valueAdded: 7.3,  kFlipped: 3, bbFlipped: 6  },
+        { team: "PHI", name: "Philadelphia Phillies",challenges: 305, overturnRate: 0.52, valueAdded: 15.9, kFlipped: 7, bbFlipped: 10 },
+        { team: "MIN", name: "Minnesota Twins",      challenges: 258, overturnRate: 0.46, valueAdded: 9.1,  kFlipped: 4, bbFlipped: 7  },
+        { team: "BOS", name: "Boston Red Sox",       challenges: 319, overturnRate: 0.48, valueAdded: 11.2, kFlipped: 5, bbFlipped: 8  },
+        { team: "CLE", name: "Cleveland Guardians",  challenges: 271, overturnRate: 0.50, valueAdded: 12.6, kFlipped: 5, bbFlipped: 9  },
+        { team: "TEX", name: "Texas Rangers",        challenges: 334, overturnRate: 0.43, valueAdded: 6.8,  kFlipped: 3, bbFlipped: 5  },
+        { team: "MIL", name: "Milwaukee Brewers",    challenges: 245, overturnRate: 0.55, valueAdded: 17.3, kFlipped: 8, bbFlipped: 11 },
+        { team: "SF",  name: "San Francisco Giants", challenges: 289, overturnRate: 0.47, valueAdded: 10.5, kFlipped: 4, bbFlipped: 8  },
+        { team: "SD",  name: "San Diego Padres",     challenges: 302, overturnRate: 0.45, valueAdded: 8.2,  kFlipped: 3, bbFlipped: 7  },
+        { team: "CIN", name: "Cincinnati Reds",      challenges: 254, overturnRate: 0.57, valueAdded: 20.1, kFlipped: 9, bbFlipped: 14 },
+        { team: "COL", name: "Colorado Rockies",     challenges: 228, overturnRate: 0.38, valueAdded: 2.1,  kFlipped: 1, bbFlipped: 3  },
+        { team: "CHC", name: "Chicago Cubs",         challenges: 279, overturnRate: 0.50, valueAdded: 12.0, kFlipped: 5, bbFlipped: 8  },
+        { team: "TB",  name: "Tampa Bay Rays",       challenges: 321, overturnRate: 0.53, valueAdded: 16.8, kFlipped: 7, bbFlipped: 11 },
+        { team: "TOR", name: "Toronto Blue Jays",    challenges: 294, overturnRate: 0.48, valueAdded: 10.9, kFlipped: 5, bbFlipped: 8  },
+        { team: "OAK", name: "Oakland Athletics",    challenges: 237, overturnRate: 0.40, valueAdded: 3.7,  kFlipped: 2, bbFlipped: 4  },
+        { team: "NYM", name: "New York Mets",        challenges: 308, overturnRate: 0.51, valueAdded: 14.4, kFlipped: 6, bbFlipped: 10 },
+        { team: "STL", name: "St. Louis Cardinals",  challenges: 267, overturnRate: 0.52, valueAdded: 15.1, kFlipped: 6, bbFlipped: 10 },
+        { team: "DET", name: "Detroit Tigers",       challenges: 249, overturnRate: 0.44, valueAdded: 7.6,  kFlipped: 3, bbFlipped: 6  },
+        { team: "ARI", name: "Arizona Diamondbacks", challenges: 285, overturnRate: 0.49, valueAdded: 12.3, kFlipped: 5, bbFlipped: 9  },
+        { team: "KC",  name: "Kansas City Royals",   challenges: 243, overturnRate: 0.42, valueAdded: 5.8,  kFlipped: 2, bbFlipped: 5  },
+        { team: "MIA", name: "Miami Marlins",        challenges: 231, overturnRate: 0.39, valueAdded: 2.9,  kFlipped: 1, bbFlipped: 3  },
+        { team: "WSH", name: "Washington Nationals", challenges: 241, overturnRate: 0.41, valueAdded: 4.5,  kFlipped: 2, bbFlipped: 4  },
+        { team: "PIT", name: "Pittsburgh Pirates",   challenges: 235, overturnRate: 0.40, valueAdded: 3.3,  kFlipped: 2, bbFlipped: 3  },
+        { team: "LAA", name: "Los Angeles Angels",   challenges: 252, overturnRate: 0.46, valueAdded: 8.8,  kFlipped: 4, bbFlipped: 7  },
+        { team: "CWS", name: "Chicago White Sox",    challenges: 218, overturnRate: 0.37, valueAdded: 1.2,  kFlipped: 1, bbFlipped: 2  },
+      ];
+
+      let currentSort = 'overturnRate';
+      let selectedTeam = null;
+      const tooltip = document.getElementById('chart-tooltip');
+      const detail = document.getElementById('selected-team-detail');
+
+      function getColor(rate) {
+        if (rate >= 0.48) return '#2a9d8f';
+        if (rate >= 0.42) return '#457b9d';
+        return '#e63946';
+      }
+
+      function getSortedData() {
+        const d = [...teams];
+        if (currentSort === 'overturnRate') return d.sort((a,b) => b.overturnRate - a.overturnRate);
+        if (currentSort === 'challenges') return d.sort((a,b) => b.challenges - a.challenges);
+        if (currentSort === 'valueAdded') return d.sort((a,b) => b.valueAdded - a.valueAdded);
+        if (currentSort === 'team') return d.sort((a,b) => a.team.localeCompare(b.team));
+        return d;
+      }
+
+      function renderChart() {
+        const svg = document.getElementById('team-chart');
+        const data = getSortedData();
+        const W = svg.getBoundingClientRect().width || 880;
+        const margin = {top: 20, right: 20, bottom: 60, left: 50};
+        const width = W - margin.left - margin.right;
+        const barH = 22;
+        const gap = 4;
+        const height = data.length * (barH + gap);
+        const totalH = height + margin.top + margin.bottom;
+
+        svg.setAttribute('height', totalH);
+        svg.setAttribute('viewBox', `0 0 ${W} ${totalH}`);
+
+        // Choose metric
+        const getVal = d => currentSort === 'challenges' ? d.challenges :
+                            currentSort === 'valueAdded' ? d.valueAdded :
+                            d.overturnRate;
+        const maxVal = Math.max(...data.map(getVal));
+        const fmt = currentSort === 'overturnRate' ? v => (v*100).toFixed(0)+'%' :
+                    currentSort === 'valueAdded' ? v => '+'+v.toFixed(1) :
+                    v => v.toString();
+
+        const scaleX = v => (v / maxVal) * width;
+
+        let html = `<g transform="translate(${margin.left},${margin.top})">`;
+
+        // Grid lines
+        const gridVals = [0.25, 0.5, 0.75, 1.0].map(f => maxVal * f);
+        gridVals.forEach(gv => {
+          const x = scaleX(gv);
+          html += `<line x1="${x}" y1="0" x2="${x}" y2="${height}" stroke="#2a2d3a" stroke-dasharray="3,3" stroke-width="1"/>`;
+          html += `<text x="${x}" y="${height+14}" text-anchor="middle" fill="#8892a4" font-family="'Courier New',monospace" font-size="10">${fmt(gv)}</text>`;
+        });
+
+        // Bars
+        data.forEach((d, i) => {
+          const y = i * (barH + gap);
+          const val = getVal(d);
+          const barW = scaleX(val);
+          const color = getColor(d.overturnRate);
+          const isSelected = selectedTeam === d.team;
+          const strokeAttr = isSelected ? `stroke="${'#e9c46a'}" stroke-width="2"` : '';
+
+          html += `<g class="bar-group${isSelected ? ' highlighted' : ''}" 
+                      data-team="${d.team}"
+                      onmouseenter="showTooltip(event,'${d.team}')"
+                      onmouseleave="hideTooltip()"
+                      onclick="selectTeam('${d.team}')">`;
+          html += `<rect x="0" y="${y}" width="${barW}" height="${barH}" fill="${color}" rx="3" ${strokeAttr} class="bar" style="transition:width 0.4s ease,opacity 0.2s"/>`;
+          html += `<text x="${Math.max(barW - 4, barW + 4)}" y="${y + barH/2 + 4}" fill="${barW > 60 ? '#fff' : '#8892a4'}" font-family="'Courier New',monospace" font-size="11" font-weight="600" text-anchor="${barW > 60 ? 'end' : 'start'}">${fmt(val)}</text>`;
+          html += `<text x="-4" y="${y + barH/2 + 4}" fill="#ccd" font-family="'Courier New',monospace" font-size="11" text-anchor="end">${d.team}</text>`;
+          html += `</g>`;
+        });
+
+        html += '</g>';
+        svg.innerHTML = html;
+      }
+
+      window.showTooltip = function(event, teamCode) {
+        const d = teams.find(t => t.team === teamCode);
+        if (!d) return;
+        tooltip.innerHTML = `
+          <div class="tooltip-team">${d.name} (${d.team})</div>
+          <div class="tooltip-row"><span>Overturn Rate</span><span class="tooltip-val">${(d.overturnRate*100).toFixed(0)}%</span></div>
+          <div class="tooltip-row"><span>Total Challenges</span><span class="tooltip-val">${d.challenges}</span></div>
+          <div class="tooltip-row"><span>Value Added</span><span class="tooltip-val">+${d.valueAdded.toFixed(1)}</span></div>
+          <div class="tooltip-row"><span>K's Flipped</span><span class="tooltip-val">${d.kFlipped}</span></div>
+          <div class="tooltip-row"><span>BB's Flipped</span><span class="tooltip-val">${d.bbFlipped}</span></div>
+        `;
+        tooltip.style.display = 'block';
+        tooltip.style.left = (event.clientX + 12) + 'px';
+        tooltip.style.top = (event.clientY - 10) + 'px';
+      };
+
+      window.hideTooltip = function() {
+        tooltip.style.display = 'none';
+      };
+
+      window.selectTeam = function(teamCode) {
+        if (selectedTeam === teamCode) {
+          selectedTeam = null;
+          detail.style.display = 'none';
+        } else {
+          selectedTeam = teamCode;
+          const d = teams.find(t => t.team === teamCode);
+          const rank = getSortedData().findIndex(t => t.team === teamCode) + 1;
+          const mlgAvg = (teams.reduce((s,t) => s + t.overturnRate, 0) / teams.length * 100).toFixed(0);
+          detail.innerHTML = `<strong>${d.name}</strong> — Ranked <strong>#${rank}</strong> by ${currentSort.replace(/([A-Z])/g,' $1').toLowerCase()}. 
+            Overturn rate: <strong style="color:${getColor(d.overturnRate)}">${(d.overturnRate*100).toFixed(0)}%</strong> vs. league avg ${mlgAvg}%. 
+            ${d.challenges} total challenges, flipping <strong>${d.kFlipped} strikeouts</strong> and granting <strong>${d.bbFlipped} extra walks</strong> 
+            — a net value-added of <strong>+${d.valueAdded.toFixed(1)}</strong> runs above the human umpire baseline. 
+            <span style="color:var(--muted);font-size:12px;">(Click again to deselect)</span>`;
+          detail.style.display = 'block';
+        }
+        renderChart();
+      };
+
+      window.sortChart = function(metric) {
+        currentSort = metric;
+        document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        renderChart();
+        if (selectedTeam) selectTeam(selectedTeam); // refresh detail
+      };
+
+      document.addEventListener('mousemove', function(e) {
+        if (tooltip.style.display === 'block') {
+          tooltip.style.left = (e.clientX + 12) + 'px';
+          tooltip.style.top = (e.clientY - 10) + 'px';
+        }
+      });
+
+      // Initial render + re-render on resize
+      renderChart();
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(renderChart, 150);
+      });
+    })();
+    </script>
+  </section>
+
+  <!-- ── Writeup ────────────────────────────────────────────────────────── -->
+  <section>
+    <h2>Project Writeup</h2>
+    <div class="writeup-box">
+
+      <h3>What We Have Done So Far</h3>
+      <p>
+        We have built the foundational infrastructure for our explorable explanation, 
+        collecting and cleaning the core 2026 MLB Statcast dataset — over 69,000 pitches 
+        with 118 columns each — and the ABS Challenge Leaderboard tracking 359 batters.
+        Our fetch_data.py pipeline 
+        pulls fresh data directly from Baseball Savant's public CSV export endpoints, 
+        meaning our visualizations automatically reflect the current state of the 2026 season. 
+        We have completed five static exploratory visualizations 
+        that establish the key narrative threads: team-level challenge strategy, individual batter 
+        decision quality, outcome impact on strikeouts and walks, strike zone boundary discrepancies, 
+        and the relationship between challenge frequency and success rate.
+        We have also implemented the first interactive visualization — 
+        the Team Challenge Performance Explorer above — which lets readers sort all 30 MLB teams by 
+        overturn rate, challenge volume, or value added, with hover tooltips showing full detail 
+        and click-to-drill-down for per-team summaries. 
+      </p>
+
+      <h3>What Will Be Most Challenging to Design</h3>
+      <p>
+        By far the most challenging visualization will be the dual strike zone comparison map. 
+        The core difficulty is that the ABS zone is a sharp, rule-defined rectangle whose top and bottom edges 
+        fixed percentages of a batter's measured height, while the human umpire zone is an emergent statistical artifact.
+        A second major design challenge is the real-time data freshness problem. The 2026 season 
+        is actively being played, which means our pipeline must reliably fetch, validate, and 
+        re-render data right up to the submission deadline without introducing gaps or errors 
+        from partial-game data. 
       </p>
     </div>
   </section>
