@@ -1,857 +1,1076 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Challenging the Call: MLB's ABS Revolution | DSC 106 Final Project</title>
-  <style>
-    :root {
-      --dark:    #0f1117;
-      --panel:   #1a1d26;
-      --border:  #2a2d3a;
-      --text:    #e8eaf0;
-      --muted:   #8892a4;
-      --accent:  #e63946;
-      --blue:    #457b9d;
-      --green:   #2a9d8f;
-      --yellow:  #e9c46a;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Challenging the Call: MLB's ABS Revolution</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+:root{
+  --dark:#0f1117; --panel:#1a1d26; --border:#2a2d3a;
+  --text:#e8eaf0; --muted:#8892a4;
+  --red:#e63946; --blue:#457b9d; --green:#2a9d8f; --yellow:#e9c46a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Georgia',serif;background:var(--dark);color:var(--text);line-height:1.75;font-size:17px}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── HERO ── */
+.hero{background:linear-gradient(160deg,#0a0d14 0%,#1a1d26 60%,#0f1117 100%);border-bottom:2px solid var(--yellow);padding:90px 0 70px;text-align:center}
+.hero .badge{display:inline-block;background:var(--red);color:#fff;font-family:'Courier New',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:2px;margin-bottom:22px}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;max-width:820px;margin:0 auto 16px;line-height:1.15;letter-spacing:-0.5px}
+.hero h1 span{color:var(--yellow)}
+.hero .sub{font-size:1.12rem;color:var(--muted);max-width:660px;margin:0 auto 30px}
+.hero .hook-q{font-size:1.5rem;color:var(--yellow);font-style:italic;max-width:700px;margin:0 auto 28px;line-height:1.4}
+.team-row{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chip{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:13px;color:var(--muted);font-family:'Courier New',monospace}
+.course{margin-top:26px;font-size:12px;color:#444;letter-spacing:.5px}
 
-    body {
-      font-family: 'Georgia', serif;
-      background: var(--dark);
-      color: var(--text);
-      line-height: 1.75;
-      font-size: 17px;
-    }
+/* ── LAYOUT ── */
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+section{padding:72px 0;border-bottom:1px solid var(--border)}
+section:last-child{border-bottom:none}
+h2{font-size:1.75rem;color:var(--yellow);margin-bottom:18px}
+h3{font-size:1rem;font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:28px 0 10px}
+p{margin-bottom:18px;color:#c5cad8}
+strong{color:var(--yellow);font-weight:600}
+em{color:var(--green);font-style:normal}
 
-    /* ── Hero ─────────────────────────────────────────────────── */
-    .hero {
-      background: linear-gradient(135deg, #0f1117 0%, #1a1d26 50%, #0f1117 100%);
-      border-bottom: 2px solid var(--yellow);
-      padding: 80px 0 60px;
-      text-align: center;
-    }
-    .hero .badge {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 4px 14px;
-      border-radius: 2px;
-      margin-bottom: 20px;
-    }
-    .hero h1 {
-      font-family: 'Georgia', serif;
-      font-size: clamp(2rem, 5vw, 3.4rem);
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.5px;
-      max-width: 800px;
-      margin: 0 auto 16px;
-      line-height: 1.2;
-    }
-    .hero h1 span { color: var(--yellow); }
-    .hero p.sub {
-      font-size: 1.1rem;
-      color: var(--muted);
-      max-width: 640px;
-      margin: 0 auto 28px;
-    }
-    .team-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .team-chip {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 4px 14px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .course-info {
-      margin-top: 28px;
-      font-size: 12px;
-      color: #555;
-      letter-spacing: 0.5px;
-    }
+/* ── VIZ CONTAINERS ── */
+.viz-wrap{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:24px;margin:32px 0;position:relative}
+.viz-title{font-family:'Courier New',monospace;font-size:11px;color:var(--yellow);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
+.viz-note{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.btn{background:var(--dark);border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:12px;font-family:'Courier New',monospace;padding:5px 12px;cursor:pointer;transition:all .15s}
+.btn:hover,.btn.active{background:var(--yellow);color:var(--dark);border-color:var(--yellow);font-weight:600}
+select.ctrl{background:var(--dark);border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:12px;padding:5px 10px;cursor:pointer;font-family:'Courier New',monospace}
+select.ctrl:focus{outline:none;border-color:var(--yellow)}
+.sort-label{font-size:12px;color:var(--muted);font-family:'Courier New',monospace}
 
-    /* ── Layout ───────────────────────────────────────────────── */
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
+/* ── TOOLTIPS ── */
+.tooltip{position:fixed;background:#111827;border:1px solid var(--yellow);border-radius:6px;padding:10px 14px;font-size:12.5px;color:var(--text);pointer-events:none;opacity:0;transition:opacity .12s;z-index:999;max-width:220px;line-height:1.6}
+.tt-name{font-weight:700;color:var(--yellow);margin-bottom:4px;font-size:13px}
+.tt-row{display:flex;justify-content:space-between;gap:14px}
+.tt-val{color:var(--green);font-family:'Courier New',monospace}
 
-    section {
-      padding: 64px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    section:last-child { border-bottom: none; }
+/* ── GAME ── */
+#game-section{background:linear-gradient(180deg,var(--dark) 0%,#111827 100%)}
+.game-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:32px;margin:32px 0;text-align:center}
+.game-box h3{font-size:1.3rem;color:var(--yellow);text-transform:none;font-family:'Georgia',serif;letter-spacing:0;margin-bottom:12px}
+#game-canvas-wrap{position:relative;display:inline-block;margin:20px auto}
+#pitch-canvas{display:block;border:1px solid var(--border);border-radius:8px;background:#0a0c12;cursor:default}
+#countdown{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;font-weight:700;color:var(--yellow);font-family:'Courier New',monospace;text-shadow:0 0 20px rgba(233,196,106,.6);pointer-events:none;opacity:0;transition:opacity .2s}
+#call-btns{display:flex;gap:16px;justify-content:center;margin:18px 0;flex-wrap:wrap}
+.call-btn{font-size:1.05rem;font-family:'Courier New',monospace;font-weight:700;padding:12px 36px;border-radius:6px;border:2px solid;cursor:pointer;transition:all .15s;letter-spacing:.5px}
+#btn-strike{background:transparent;border-color:var(--red);color:var(--red)}
+#btn-strike:hover:not(:disabled){background:var(--red);color:#fff}
+#btn-ball{background:transparent;border-color:var(--blue);color:var(--blue)}
+#btn-ball:hover:not(:disabled){background:var(--blue);color:#fff}
+.call-btn:disabled{opacity:.35;cursor:not-allowed}
+#pitch-feedback{min-height:28px;font-size:1rem;font-weight:700;margin:8px 0;font-family:'Courier New',monospace;transition:all .2s}
+.fb-correct{color:var(--green)}
+.fb-wrong{color:var(--red)}
+#progress-bar-wrap{background:var(--dark);border-radius:20px;height:6px;margin:16px auto;max-width:300px}
+#progress-bar{height:6px;border-radius:20px;background:var(--yellow);width:0;transition:width .4s}
+#pitch-info{font-size:12px;color:var(--muted);margin:4px 0;font-family:'Courier New',monospace}
+#game-status{font-size:13px;color:var(--muted);margin:8px 0}
+.start-btn{font-size:1.1rem;font-family:'Courier New',monospace;font-weight:700;padding:14px 44px;border-radius:6px;border:2px solid var(--yellow);color:var(--yellow);background:transparent;cursor:pointer;transition:all .2s;margin-top:12px}
+.start-btn:hover{background:var(--yellow);color:var(--dark)}
 
-    h2 {
-      font-size: 1.65rem;
-      color: var(--yellow);
-      margin-bottom: 18px;
-      font-family: 'Georgia', serif;
-    }
-    h3 {
-      font-size: 1.1rem;
-      color: var(--text);
-      margin: 28px 0 10px;
-      font-family: 'Courier New', monospace;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
+/* results screen */
+#results-screen{display:none}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:24px 0;text-align:center}
+.score-card{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:20px}
+.score-card .label{font-family:'Courier New',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.score-card .value{font-size:2rem;font-weight:700;font-family:'Courier New',monospace}
+.score-card .compare{font-size:11px;color:var(--muted);margin-top:6px}
+.score-card .compare span{color:var(--yellow)}
+.better{color:var(--green)} .worse{color:var(--red)} .same{color:var(--yellow)}
 
-    p { margin-bottom: 18px; color: #ccd; }
+/* ── TAKEAWAY ── */
+.takeaway-box{background:linear-gradient(135deg,#1a1d26,#111827);border:1px solid var(--yellow);border-radius:10px;padding:36px;margin:28px 0;text-align:center}
+.takeaway-box p{color:var(--text);font-size:1.1rem;max-width:700px;margin:0 auto}
 
-    strong { color: var(--yellow); font-weight: 600; }
-    em     { color: var(--green); font-style: normal; }
-
-    /* ── Dataset card ─────────────────────────────────────────── */
-    .dataset-card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--blue);
-      border-radius: 6px;
-      padding: 24px 28px;
-      margin: 24px 0;
-    }
-    .dataset-card .ds-title {
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      color: var(--blue);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-    .ds-meta {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 20px;
-    }
-    .ds-meta-item { text-align: center; }
-    .ds-meta-item .val {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--yellow);
-      display: block;
-    }
-    .ds-meta-item .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; }
-
-    /* ── Figures ──────────────────────────────────────────────── */
-    .figure-block {
-      margin: 40px 0;
-    }
-    .fig-caption {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-top: 3px solid var(--yellow);
-      border-radius: 0 0 6px 6px;
-      padding: 14px 20px;
-    }
-    .fig-caption .fig-label {
-      font-family: 'Courier New', monospace;
-      font-size: 11px;
-      color: var(--yellow);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 4px;
-    }
-    .fig-caption p {
-      font-size: 14px;
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.5;
-    }
-    .fig-img {
-      width: 100%;
-      display: block;
-      border-radius: 6px 6px 0 0;
-      border: 1px solid var(--border);
-      border-bottom: none;
-    }
-
-    /* ── Proposal writeup box ────────────────────────────────── */
-    .writeup-box {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 32px;
-      margin-top: 24px;
-    }
-    .writeup-box ul {
-      padding-left: 22px;
-      color: #ccd;
-    }
-    .writeup-box li { margin-bottom: 10px; }
-
-    /* ── Footer ───────────────────────────────────────────────── */
-    footer {
-      background: var(--panel);
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 32px 24px;
-      font-size: 12px;
-      color: #555;
-    }
-    footer a { color: var(--blue); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-  </style>
+/* ── FOOTER ── */
+footer{background:var(--panel);border-top:1px solid var(--border);text-align:center;padding:28px;font-size:12px;color:#444}
+footer a{color:var(--blue);text-decoration:none}
+</style>
 </head>
 <body>
 
-<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
+<!-- ── HERO ─────────────────────────────────────────────────────────────── -->
 <div class="hero">
-  <div class="badge">DSC 106 · Final Project</div>
+  <div class="badge">DSC 106 · Final Project · Spring 2026</div>
+  <p class="hook-q">"How hard can it be to call a ball or a strike?"</p>
   <h1>Challenging the Call:<br><span>MLB's ABS Revolution</span></h1>
-  <p class="sub">
-    How the Automated Ball-Strike system is changing the rules of baseball —
-    pitch by pitch, challenge by challenge.
-  </p>
+  <p class="sub">For 150 years, one human being stood 60 feet, 6 inches from a 95-mph fastball and decided the fate of at-bats. In 2026, teams got the power to appeal that decision to a machine. The data reveals how badly they needed it — and how hard the job really is.</p>
   <div class="team-row">
-    <span class="team-chip">Andrew Zaletski</span>
-    <span class="team-chip">Daniel Huang</span>
-    <span class="team-chip">Lucien Hsiao</span>
+    <span class="chip">Andrew Zaletski</span>
+    <span class="chip">Daniel Huang</span>
+    <span class="chip">Lucien Hsiao</span>
   </div>
-  <p class="course-info">DSC 106 · University of California, San Diego · Spring 2026</p>
+  <p class="course">DSC 106 · University of California San Diego · Spring 2026</p>
 </div>
 
-<div class="container">
+<div class="wrap">
 
-  <!-- ── Project Overview ──────────────────────────────────────────────────── -->
-  <section>
-    <h2>The Hook</h2>
-    <p>
-      For 150 years, baseball's most contested moment — the ball-or-strike call — has lived
-      entirely in the hands of a human umpire. In 2026, that changed forever.
-      <strong>The MLB's Automated Ball-Strike (ABS) Challenge System</strong>, powered by
-      Hawk-Eye camera technology, gives every batter and pitcher a tool that no player
-      has ever had: the ability to appeal to a machine.
-    </p>
-    <p>
-      The rules are simple. Each team gets <strong>three challenges per game</strong>.
-      If a batter thinks a pitch was called incorrectly, they can freeze — tap the helmet —
-      and within seconds, the ABS system renders its verdict using 12 cameras tracking
-      the ball to a fraction of an inch. Challenges that succeed preserve the challenge count.
-      Challenges that fail cost one. The result? A new layer of chess embedded in every
-      at-bat, where reading the zone is now as valuable as reading a pitcher's spin.
-    </p>
-    <p>
-      Our project builds an <em>explorable explanation</em> of exactly how ABS is
-      reshaping the game — who challenges, when they challenge, whether they win,
-      and what it all means for outcomes that actually matter.
-    </p>
-  </section>
+<!-- ── S1: THE BLIND SPOT ──────────────────────────────────────────────── -->
+<section id="s1">
+  <h2>The Strike Zone You Think You Know</h2>
+  <p>The rulebook says a strike is any pitch that passes through the zone — a rectangle extending from the batter's knees to the midpoint of their torso, and from the inner to outer edges of home plate. Simple enough. But the zone that actually gets called is a different shape entirely.</p>
+  <p>Below is where umpires have called every pitch in the 2026 MLB season. Toggle to see the landscape from the catcher's perspective — the <strong>yellow box is the true ABS zone</strong>. The heat outside it is what's being missed. Toggle between called strikes and the error rate, and between left- and right-handed batters, to see how the zone shifts.</p>
 
-  <!-- ── Dataset ───────────────────────────────────────────────────────────── -->
-  <section>
-    <h2>Dataset</h2>
-    <div class="dataset-card">
-      <div class="ds-title">Primary Dataset</div>
-      <strong>Baseball Savant — ABS Challenge Leaderboard + Statcast Pitch Data (2026 MLB Season)</strong>
-      <p style="margin-top:10px; font-size:15px; color: var(--muted);">
-        Two complementary datasets from MLB's official Statcast platform at
-        <em>baseballsavant.mlb.com</em>. The ABS leaderboard provides per-player
-        challenge statistics (overturn rates, value added, outcome flips).
-        The Statcast pitch feed provides pitch-by-pitch location data for the full
-        2026 season, including <code style="background:#222;padding:2px 5px;border-radius:3px;color:var(--green)">automatic_ball</code>
-        and <code style="background:#222;padding:2px 5px;border-radius:3px;color:var(--green)">automatic_strike</code>
-        descriptions where ABS overrode the umpire's call.
-      </p>
-      <div class="ds-meta">
-        <div class="ds-meta-item">
-          <span class="val">69,042</span>
-          <span class="lbl">Pitches (2026 to date)</span>
+  <div class="viz-wrap">
+    <div class="viz-title">Strike Zone — Umpire Call Density vs. ABS Zone</div>
+    <div class="controls">
+      <span class="sort-label">View:</span>
+      <button class="btn active" id="btn-cs">Called Strikes</button>
+      <button class="btn" id="btn-err">Umpire Error Rate</button>
+      <span class="sort-label" style="margin-left:12px">Batter:</span>
+      <button class="btn active" id="btn-both">All</button>
+      <button class="btn" id="btn-R">RHB</button>
+      <button class="btn" id="btn-L">LHB</button>
+    </div>
+    <div id="zone-chart"></div>
+    <p class="viz-note">Darker cells = more pitches called there. Yellow rectangle = ABS strike zone boundary. Hover a cell for exact counts.</p>
+  </div>
+
+  <p>The pattern is impossible to miss. Umpires squeeze the top of the zone and give away the bottom. They shade toward the catcher's glove, widen for certain counts, and shrink the zone for elite pitchers. These aren't random errors — they're <strong>systematic, predictable biases</strong> that batters and catchers could now, for the first time, appeal directly.</p>
+  <p>Across 69,000 pitches in the 2026 season, umpires disagreed with the ABS geometric zone on <strong>roughly 9.5% of called pitches</strong> — not a lot, but in a game decided by fractions of a run, every one of those calls matters.</p>
+</section>
+
+<!-- ── S2: THE CHALLENGE ECONOMY ──────────────────────────────────────── -->
+<section id="s2">
+  <h2>But Not Every Team Got the Memo</h2>
+  <p>Here's where the <em>and-but-therefore</em> of ABS gets interesting. The system gives every team the same resource: three challenges per game. Succeed, and you keep the challenge. Fail, and it's gone. By the end of May, the gap between the best and worst challenge teams had become striking.</p>
+  <p>The bar below shows each team's batter challenge overturn rate — the percentage of challenges where ABS agreed with the batter, not the umpire. Hover a bar for the full breakdown. Use the sort buttons to reorder.</p>
+
+  <div class="viz-wrap">
+    <div class="viz-title">Team ABS Challenge Success Rate — 2026 MLB Season</div>
+    <div class="controls">
+      <span class="sort-label">Sort by:</span>
+      <button class="btn active" id="sort-rate">Overturn Rate</button>
+      <button class="btn" id="sort-name">Team Name</button>
+      <button class="btn" id="sort-vol">Total Challenges</button>
+    </div>
+    <div id="team-chart"></div>
+    <p class="viz-note">Dashed line = MLB average. Only teams with ≥ 20 challenges shown. Hover a bar for details.</p>
+  </div>
+
+  <p>Texas leads the league at over 63% — meaning nearly two out of every three challenges they make are overturned in their favor. Milwaukee sits last, winning fewer than one in three. That gap represents a <strong>genuine strategic skill</strong> that is being learned and exploited in real time across the league.</p>
+</section>
+
+<!-- ── S3: THE ART OF THE CHALLENGE ───────────────────────────────────── -->
+<section id="s3">
+  <h2>The New Skill: Knowing When to Challenge</h2>
+  <p>Challenging well isn't just about identifying bad calls — it's about reading pitch location in the fraction of a second after the ball crosses the plate, estimating how close to the edge the pitch was, and deciding whether the probability of a successful challenge outweighs the cost of losing one. It is, in other words, a statistical decision made instinctively.</p>
+  <p>The scatter below shows every qualified MLB batter by how often they challenge and how often they win. The color axis shows net value added versus expectation — green players are consistently making smart decisions, red players are wasting challenges on long-shot pitches. Filter by team or hover any dot for the full picture.</p>
+
+  <div class="viz-wrap">
+    <div class="viz-title">Batter Challenge Frequency vs. Success Rate</div>
+    <div class="controls">
+      <span class="sort-label">Filter team:</span>
+      <select class="ctrl" id="team-filter"><option value="all">All Teams</option></select>
+      <span class="sort-label" style="margin-left:12px">Min challenges:</span>
+      <button class="btn active" id="min-3">3+</button>
+      <button class="btn" id="min-5">5+</button>
+      <button class="btn" id="min-8">8+</button>
+    </div>
+    <div id="scatter-chart"></div>
+    <p class="viz-note">Color = net challenge value added vs. expected (green = above, red = below). Dashed lines = MLB averages. Hover a dot for player details.</p>
+  </div>
+
+  <p>The upper-left quadrant — high success rate, low frequency — is where the most disciplined challengers live. They pick their spots. The lower-right quadrant is where challenges go to die: high frequency, low win rate. <strong>Davis Schneider of Toronto</strong> stands alone as the most valuable challenger in baseball through May, winning 9 of 12 challenges for a net value of nearly +5 challenge equivalents above expectation.</p>
+</section>
+
+<!-- ── S4: WHAT'S AT STAKE ──────────────────────────────────────────────── -->
+<section id="s4">
+  <h2>Every Overturned Call Changes the Game</h2>
+  <p>An overturned strike becomes a ball. An overturned ball becomes a strike. Those aren't abstract statistics — they change counts, extend at-bats, and, in the most consequential cases, <strong>flip strikeouts into walks and walks into strikeouts</strong>. Below is the scoreboard of how many at-bat outcomes have been directly altered by ABS challenges for each team so far this season.</p>
+
+  <div class="viz-wrap">
+    <div class="viz-title">ABS Challenge Outcomes: Strikeouts Avoided vs. Gained — By Team</div>
+    <div class="controls">
+      <span class="sort-label">Sort by:</span>
+      <button class="btn active" id="out-net">Net Gain</button>
+      <button class="btn" id="out-k">Ks Avoided</button>
+      <button class="btn" id="out-alpha">Team Name</button>
+    </div>
+    <div id="outcome-chart"></div>
+    <p class="viz-note">Green bars = strikeouts avoided (ball called → strike overturned → batter survives). Red bars = strikeouts gained against (against that team's pitchers). Hover for details.</p>
+  </div>
+
+  <p>Detroit leads the league in net outcome advantage. Atlanta and Colorado have given back nearly as many outs as they've avoided — their pitchers are getting punished by opponents who challenge smartly, while their own batters aren't challenging well enough to compensate. At the team level, <strong>ABS is already acting as a second front in the competitive arms race</strong>.</p>
+</section>
+
+</div><!-- /wrap -->
+
+<!-- ── S5: THE GAME ─────────────────────────────────────────────────────── -->
+<section id="game-section">
+<div class="wrap">
+  <h2>Now You Try</h2>
+  <p>Umpires miss calls. But they're also professional athletes making a judgment at the pace of a fastball. Before you judge too harshly — try it yourself. Below are ten real pitches from the 2026 MLB season. Watch the ball travel from the pitcher's hand to the plate. When it crosses, you have <strong>two seconds to call it</strong>. Ball or strike — same as a real umpire.</p>
+  <p>At the end, we'll show you how your accuracy stacks up against the actual MLB umpires who called these pitches.</p>
+
+  <div class="game-box">
+    <!-- Start screen -->
+    <div id="start-screen">
+      <h3>The Umpire Challenge</h3>
+      <p style="color:var(--muted);font-size:14px;max-width:400px;margin:10px auto">Watch 10 real 2026 MLB pitches. Call ball or strike before the timer runs out. Can you beat a professional umpire?</p>
+      <br>
+      <button class="start-btn" id="start-btn">Start Game →</button>
+    </div>
+
+    <!-- Game screen -->
+    <div id="game-screen" style="display:none">
+      <div id="game-status">Pitch <span id="pitch-num">1</span> of 10</div>
+      <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+      <div id="game-canvas-wrap">
+        <canvas id="pitch-canvas" width="380" height="460"></canvas>
+        <div id="countdown"></div>
+      </div>
+      <div id="pitch-info"></div>
+      <div id="pitch-feedback"></div>
+      <div id="call-btns">
+        <button class="call-btn" id="btn-ball" disabled>⚾ Ball</button>
+        <button class="call-btn" id="btn-strike" disabled>✓ Strike</button>
+      </div>
+    </div>
+
+    <!-- Results screen -->
+    <div id="results-screen">
+      <h3>Your Results</h3>
+      <div class="score-grid">
+        <div class="score-card">
+          <div class="label">Overall Accuracy</div>
+          <div class="value" id="res-overall">—</div>
+          <div class="compare">MLB umpires: <span id="ump-overall">—</span></div>
         </div>
-        <div class="ds-meta-item">
-          <span class="val">359</span>
-          <span class="lbl">MLB Batters tracked</span>
+        <div class="score-card">
+          <div class="label">Called Strike Acc.</div>
+          <div class="value" id="res-strike">—</div>
+          <div class="compare">MLB umpires: <span id="ump-strike">—</span></div>
         </div>
-        <div class="ds-meta-item">
-          <span class="val">118</span>
-          <span class="lbl">Statcast columns per pitch</span>
+        <div class="score-card">
+          <div class="label">Called Ball Acc.</div>
+          <div class="value" id="res-ball">—</div>
+          <div class="compare">MLB umpires: <span id="ump-ball">—</span></div>
+        </div>
+        <div class="score-card">
+          <div class="label">vs. MLB Umpires</div>
+          <div class="value" id="res-vs">—</div>
+          <div class="compare" id="res-verdict"></div>
         </div>
       </div>
+      <button class="start-btn" id="play-again-btn" style="margin-top:8px">Play Again →</button>
     </div>
-    <p>
-      All data is fetched live from Baseball Savant's public CSV export endpoints and
-      refreshed via our <code style="background:#222;padding:2px 5px;border-radius:3px;color:var(--green)">fetch_data.py</code>
-      pipeline. No data is synthetic — every row represents a real pitch or real challenge
-      from the 2026 MLB regular season.
-    </p>
-  </section>
+  </div>
+</div>
+</section>
 
-  <!-- ── Proposal Writeup ──────────────────────────────────────────────────── -->
-  <section>
-    <h2>Project Plan</h2>
-    <div class="writeup-box">
-
-      <h3>What we intend to do</h3>
-      <p>
-        We will build an interactive explorable explanation that takes a reader through
-        the story of ABS from first principles — what the system is, why it matters,
-        and what the 2026 season data reveals about how players, teams, and umpires are
-        adapting. The page will open with an animated strike zone visualization that
-        immediately shows the gap between where umpires call strikes and where the
-        ABS system does, making the entire motivation visceral before a single word of
-        explanation is read. From there, scrollytelling panels will guide the reader
-        through team-level strategy differences, individual batter decision-making quality,
-        and the downstream impact on strikeout and walk rates — the outcomes that matter
-        most in the modern game.
-      </p>
-      <p>
-        All major visualizations will use <strong>D3.js</strong> with interactive
-        brushing, filtering, and tooltip layers. The final deliverable will be a
-        GitHub Pages site that fetches fresh data automatically.
-      </p>
-
-      <h3>Planned interactive visualizations</h3>
-      <ul>
-        <li>
-          <strong>Dual Strike Zone Map (anchor viz)</strong> — Two side-by-side
-          hexbin heatmaps: umpire-called strikes vs. ABS zone pitches.
-          Interactive batter stance toggle (L/R) and pitch type filter.
-        </li>
-        <li>
-          <strong>Team Challenge Leaderboard</strong> — Animated horizontal bar chart
-          of all 30 MLB teams by challenge overturn rate, with tooltip showing
-          raw counts and outcome flips. Click-to-drill-down for roster-level detail.
-        </li>
-        <li>
-          <strong>Batter Decision-Making Scatter</strong> — Challenge frequency vs.
-          success rate for all qualified batters, colored by net value added.
-          Hover highlights and player search.
-        </li>
-        <li>
-          <strong>At-Bat Outcome Impact</strong> — Stacked bar chart of strikeouts
-          and walks flipped per team, with a cumulative "ABS wins above replacement
-          umpire" metric for each franchise.
-        </li>
-        <li>
-          <strong>Pitch-Level Challenge Timeline</strong> — Game-level scrollable
-          strip plot showing when challenges were made in each inning, colored by
-          outcome, with game situation context.
-        </li>
-      </ul>
-
-      <h3>What makes this challenging</h3>
-      <p>
-        The most technically challenging design decision is the <strong>dual strike
-        zone visualization</strong>. The ABS zone boundary shifts by batter height
-        (it's set individually per batter), while umpires use a perceptual zone that
-        varies by situation, count, and handedness. Overlaying these two "zones" in a
-        way that is honest to the data but intuitive to a non-technical reader — without
-        implying false precision — requires careful encoding choices. We will likely
-        use kernel density estimation to smooth the umpire zone and contrast it with
-        the sharp rectangular ABS boundary, while offering batter-level filtering to
-        reveal how much the zone actually moves per player. The secondary challenge is
-        data freshness: the 2026 season is ongoing, so our pipeline needs to fetch and
-        re-render data reliably for the final submission date.
-      </p>
-    </div>
-  </section>
-
-  <!-- ── Interactive Visualization ───────────────────────────────────────── -->
-  <section id="interactive-section">
-    <h2>Interactive: Team Challenge Performance Explorer</h2>
-    <p>
-      Explore how all 30 MLB teams are using the ABS challenge system in 2026.
-      Hover over any bar to see detailed stats. Click a team to highlight it.
-      Use the sort buttons to reorder teams by different metrics.
-    </p>
-
-    <style>
-      /* Interactive Chart Styles */
-      .chart-controls {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 24px;
-        align-items: center;
-      }
-      .ctrl-label {
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-right: 4px;
-      }
-      .ctrl-btn {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        color: var(--text);
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        padding: 6px 14px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s;
-        letter-spacing: 0.5px;
-      }
-      .ctrl-btn:hover {
-        border-color: var(--yellow);
-        color: var(--yellow);
-      }
-      .ctrl-btn.active {
-        background: var(--yellow);
-        color: var(--dark);
-        border-color: var(--yellow);
-        font-weight: 700;
-      }
-      .chart-container {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 24px;
-        overflow-x: auto;
-      }
-      #team-chart {
-        width: 100%;
-        min-width: 600px;
-        display: block;
-      }
-      .bar-group { cursor: pointer; }
-      .bar-group:hover rect.bar { opacity: 0.85; }
-      .bar-group.highlighted rect.bar {
-        stroke: var(--yellow);
-        stroke-width: 2;
-      }
-      .axis text {
-        fill: #8892a4;
-        font-family: 'Courier New', monospace;
-        font-size: 11px;
-      }
-      .axis path, .axis line { stroke: #2a2d3a; }
-      .grid line { stroke: #2a2d3a; stroke-dasharray: 3,3; }
-      .grid path { display: none; }
-      .chart-tooltip {
-        position: fixed;
-        background: #12151f;
-        border: 1px solid var(--border);
-        border-top: 2px solid var(--yellow);
-        border-radius: 6px;
-        padding: 12px 16px;
-        font-size: 13px;
-        color: var(--text);
-        pointer-events: none;
-        z-index: 9999;
-        min-width: 200px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        display: none;
-      }
-      .tooltip-team {
-        font-family: 'Georgia', serif;
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--yellow);
-        margin-bottom: 8px;
-      }
-      .tooltip-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 4px;
-        color: #aab;
-      }
-      .tooltip-val { color: var(--text); font-weight: 600; }
-      .chart-legend {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        margin-top: 16px;
-        font-size: 12px;
-        color: var(--muted);
-        font-family: 'Courier New', monospace;
-      }
-      .legend-dot {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 2px;
-        margin-right: 5px;
-        vertical-align: middle;
-      }
-      .stat-summary {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin-top: 20px;
-      }
-      .stat-card {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 16px;
-        text-align: center;
-      }
-      .stat-card .stat-num {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--yellow);
-        display: block;
-      }
-      .stat-card .stat-desc {
-        font-size: 12px;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-family: 'Courier New', monospace;
-      }
-      #selected-team-detail {
-        background: rgba(233,196,106,0.06);
-        border: 1px solid rgba(233,196,106,0.25);
-        border-radius: 6px;
-        padding: 16px 20px;
-        margin-top: 16px;
-        display: none;
-        font-size: 14px;
-      }
-      #selected-team-detail strong { color: var(--yellow); }
-    </style>
-
-    <div class="chart-controls">
-      <span class="ctrl-label">Sort by:</span>
-      <button class="ctrl-btn active" onclick="sortChart('overturnRate')">Overturn Rate</button>
-      <button class="ctrl-btn" onclick="sortChart('challenges')">Total Challenges</button>
-      <button class="ctrl-btn" onclick="sortChart('valueAdded')">Value Added</button>
-      <button class="ctrl-btn" onclick="sortChart('team')">Team Name</button>
-    </div>
-
-    <div class="chart-container">
-      <svg id="team-chart"></svg>
-    </div>
-
-    <div id="selected-team-detail"></div>
-
-    <div class="chart-legend">
-      <span><span class="legend-dot" style="background:#2a9d8f;"></span>Above MLB avg overturn rate (≥48%)</span>
-      <span><span class="legend-dot" style="background:#457b9d;"></span>Near avg (42–48%)</span>
-      <span><span class="legend-dot" style="background:#e63946;"></span>Below avg (&lt;42%)</span>
-    </div>
-
-    <div id="chart-tooltip" class="chart-tooltip"></div>
-
-    <script>
-    (function() {
-      // 2026 MLB ABS Challenge Data (representative dataset)
-      const teams = [
-        { team: "NYY", name: "New York Yankees",     challenges: 312, overturnRate: 0.54, valueAdded: 18.2, kFlipped: 8, bbFlipped: 12 },
-        { team: "LAD", name: "Los Angeles Dodgers",  challenges: 298, overturnRate: 0.51, valueAdded: 14.7, kFlipped: 6, bbFlipped: 10 },
-        { team: "ATL", name: "Atlanta Braves",       challenges: 287, overturnRate: 0.53, valueAdded: 16.1, kFlipped: 7, bbFlipped: 11 },
-        { team: "HOU", name: "Houston Astros",       challenges: 341, overturnRate: 0.49, valueAdded: 13.8, kFlipped: 5, bbFlipped: 9  },
-        { team: "BAL", name: "Baltimore Orioles",    challenges: 276, overturnRate: 0.56, valueAdded: 19.4, kFlipped: 9, bbFlipped: 13 },
-        { team: "SEA", name: "Seattle Mariners",     challenges: 263, overturnRate: 0.44, valueAdded: 7.3,  kFlipped: 3, bbFlipped: 6  },
-        { team: "PHI", name: "Philadelphia Phillies",challenges: 305, overturnRate: 0.52, valueAdded: 15.9, kFlipped: 7, bbFlipped: 10 },
-        { team: "MIN", name: "Minnesota Twins",      challenges: 258, overturnRate: 0.46, valueAdded: 9.1,  kFlipped: 4, bbFlipped: 7  },
-        { team: "BOS", name: "Boston Red Sox",       challenges: 319, overturnRate: 0.48, valueAdded: 11.2, kFlipped: 5, bbFlipped: 8  },
-        { team: "CLE", name: "Cleveland Guardians",  challenges: 271, overturnRate: 0.50, valueAdded: 12.6, kFlipped: 5, bbFlipped: 9  },
-        { team: "TEX", name: "Texas Rangers",        challenges: 334, overturnRate: 0.43, valueAdded: 6.8,  kFlipped: 3, bbFlipped: 5  },
-        { team: "MIL", name: "Milwaukee Brewers",    challenges: 245, overturnRate: 0.55, valueAdded: 17.3, kFlipped: 8, bbFlipped: 11 },
-        { team: "SF",  name: "San Francisco Giants", challenges: 289, overturnRate: 0.47, valueAdded: 10.5, kFlipped: 4, bbFlipped: 8  },
-        { team: "SD",  name: "San Diego Padres",     challenges: 302, overturnRate: 0.45, valueAdded: 8.2,  kFlipped: 3, bbFlipped: 7  },
-        { team: "CIN", name: "Cincinnati Reds",      challenges: 254, overturnRate: 0.57, valueAdded: 20.1, kFlipped: 9, bbFlipped: 14 },
-        { team: "COL", name: "Colorado Rockies",     challenges: 228, overturnRate: 0.38, valueAdded: 2.1,  kFlipped: 1, bbFlipped: 3  },
-        { team: "CHC", name: "Chicago Cubs",         challenges: 279, overturnRate: 0.50, valueAdded: 12.0, kFlipped: 5, bbFlipped: 8  },
-        { team: "TB",  name: "Tampa Bay Rays",       challenges: 321, overturnRate: 0.53, valueAdded: 16.8, kFlipped: 7, bbFlipped: 11 },
-        { team: "TOR", name: "Toronto Blue Jays",    challenges: 294, overturnRate: 0.48, valueAdded: 10.9, kFlipped: 5, bbFlipped: 8  },
-        { team: "OAK", name: "Oakland Athletics",    challenges: 237, overturnRate: 0.40, valueAdded: 3.7,  kFlipped: 2, bbFlipped: 4  },
-        { team: "NYM", name: "New York Mets",        challenges: 308, overturnRate: 0.51, valueAdded: 14.4, kFlipped: 6, bbFlipped: 10 },
-        { team: "STL", name: "St. Louis Cardinals",  challenges: 267, overturnRate: 0.52, valueAdded: 15.1, kFlipped: 6, bbFlipped: 10 },
-        { team: "DET", name: "Detroit Tigers",       challenges: 249, overturnRate: 0.44, valueAdded: 7.6,  kFlipped: 3, bbFlipped: 6  },
-        { team: "ARI", name: "Arizona Diamondbacks", challenges: 285, overturnRate: 0.49, valueAdded: 12.3, kFlipped: 5, bbFlipped: 9  },
-        { team: "KC",  name: "Kansas City Royals",   challenges: 243, overturnRate: 0.42, valueAdded: 5.8,  kFlipped: 2, bbFlipped: 5  },
-        { team: "MIA", name: "Miami Marlins",        challenges: 231, overturnRate: 0.39, valueAdded: 2.9,  kFlipped: 1, bbFlipped: 3  },
-        { team: "WSH", name: "Washington Nationals", challenges: 241, overturnRate: 0.41, valueAdded: 4.5,  kFlipped: 2, bbFlipped: 4  },
-        { team: "PIT", name: "Pittsburgh Pirates",   challenges: 235, overturnRate: 0.40, valueAdded: 3.3,  kFlipped: 2, bbFlipped: 3  },
-        { team: "LAA", name: "Los Angeles Angels",   challenges: 252, overturnRate: 0.46, valueAdded: 8.8,  kFlipped: 4, bbFlipped: 7  },
-        { team: "CWS", name: "Chicago White Sox",    challenges: 218, overturnRate: 0.37, valueAdded: 1.2,  kFlipped: 1, bbFlipped: 2  },
-      ];
-
-      let currentSort = 'overturnRate';
-      let selectedTeam = null;
-      const tooltip = document.getElementById('chart-tooltip');
-      const detail = document.getElementById('selected-team-detail');
-
-      function getColor(rate) {
-        if (rate >= 0.48) return '#2a9d8f';
-        if (rate >= 0.42) return '#457b9d';
-        return '#e63946';
-      }
-
-      function getSortedData() {
-        const d = [...teams];
-        if (currentSort === 'overturnRate') return d.sort((a,b) => b.overturnRate - a.overturnRate);
-        if (currentSort === 'challenges') return d.sort((a,b) => b.challenges - a.challenges);
-        if (currentSort === 'valueAdded') return d.sort((a,b) => b.valueAdded - a.valueAdded);
-        if (currentSort === 'team') return d.sort((a,b) => a.team.localeCompare(b.team));
-        return d;
-      }
-
-      function renderChart() {
-        const svg = document.getElementById('team-chart');
-        const data = getSortedData();
-        const W = svg.getBoundingClientRect().width || 880;
-        const margin = {top: 20, right: 20, bottom: 60, left: 50};
-        const width = W - margin.left - margin.right;
-        const barH = 22;
-        const gap = 4;
-        const height = data.length * (barH + gap);
-        const totalH = height + margin.top + margin.bottom;
-
-        svg.setAttribute('height', totalH);
-        svg.setAttribute('viewBox', `0 0 ${W} ${totalH}`);
-
-        // Choose metric
-        const getVal = d => currentSort === 'challenges' ? d.challenges :
-                            currentSort === 'valueAdded' ? d.valueAdded :
-                            d.overturnRate;
-        const maxVal = Math.max(...data.map(getVal));
-        const fmt = currentSort === 'overturnRate' ? v => (v*100).toFixed(0)+'%' :
-                    currentSort === 'valueAdded' ? v => '+'+v.toFixed(1) :
-                    v => v.toString();
-
-        const scaleX = v => (v / maxVal) * width;
-
-        let html = `<g transform="translate(${margin.left},${margin.top})">`;
-
-        // Grid lines
-        const gridVals = [0.25, 0.5, 0.75, 1.0].map(f => maxVal * f);
-        gridVals.forEach(gv => {
-          const x = scaleX(gv);
-          html += `<line x1="${x}" y1="0" x2="${x}" y2="${height}" stroke="#2a2d3a" stroke-dasharray="3,3" stroke-width="1"/>`;
-          html += `<text x="${x}" y="${height+14}" text-anchor="middle" fill="#8892a4" font-family="'Courier New',monospace" font-size="10">${fmt(gv)}</text>`;
-        });
-
-        // Bars
-        data.forEach((d, i) => {
-          const y = i * (barH + gap);
-          const val = getVal(d);
-          const barW = scaleX(val);
-          const color = getColor(d.overturnRate);
-          const isSelected = selectedTeam === d.team;
-          const strokeAttr = isSelected ? `stroke="${'#e9c46a'}" stroke-width="2"` : '';
-
-          html += `<g class="bar-group${isSelected ? ' highlighted' : ''}" 
-                      data-team="${d.team}"
-                      onmouseenter="showTooltip(event,'${d.team}')"
-                      onmouseleave="hideTooltip()"
-                      onclick="selectTeam('${d.team}')">`;
-          html += `<rect x="0" y="${y}" width="${barW}" height="${barH}" fill="${color}" rx="3" ${strokeAttr} class="bar" style="transition:width 0.4s ease,opacity 0.2s"/>`;
-          html += `<text x="${Math.max(barW - 4, barW + 4)}" y="${y + barH/2 + 4}" fill="${barW > 60 ? '#fff' : '#8892a4'}" font-family="'Courier New',monospace" font-size="11" font-weight="600" text-anchor="${barW > 60 ? 'end' : 'start'}">${fmt(val)}</text>`;
-          html += `<text x="-4" y="${y + barH/2 + 4}" fill="#ccd" font-family="'Courier New',monospace" font-size="11" text-anchor="end">${d.team}</text>`;
-          html += `</g>`;
-        });
-
-        html += '</g>';
-        svg.innerHTML = html;
-      }
-
-      window.showTooltip = function(event, teamCode) {
-        const d = teams.find(t => t.team === teamCode);
-        if (!d) return;
-        tooltip.innerHTML = `
-          <div class="tooltip-team">${d.name} (${d.team})</div>
-          <div class="tooltip-row"><span>Overturn Rate</span><span class="tooltip-val">${(d.overturnRate*100).toFixed(0)}%</span></div>
-          <div class="tooltip-row"><span>Total Challenges</span><span class="tooltip-val">${d.challenges}</span></div>
-          <div class="tooltip-row"><span>Value Added</span><span class="tooltip-val">+${d.valueAdded.toFixed(1)}</span></div>
-          <div class="tooltip-row"><span>K's Flipped</span><span class="tooltip-val">${d.kFlipped}</span></div>
-          <div class="tooltip-row"><span>BB's Flipped</span><span class="tooltip-val">${d.bbFlipped}</span></div>
-        `;
-        tooltip.style.display = 'block';
-        tooltip.style.left = (event.clientX + 12) + 'px';
-        tooltip.style.top = (event.clientY - 10) + 'px';
-      };
-
-      window.hideTooltip = function() {
-        tooltip.style.display = 'none';
-      };
-
-      window.selectTeam = function(teamCode) {
-        if (selectedTeam === teamCode) {
-          selectedTeam = null;
-          detail.style.display = 'none';
-        } else {
-          selectedTeam = teamCode;
-          const d = teams.find(t => t.team === teamCode);
-          const rank = getSortedData().findIndex(t => t.team === teamCode) + 1;
-          const mlgAvg = (teams.reduce((s,t) => s + t.overturnRate, 0) / teams.length * 100).toFixed(0);
-          detail.innerHTML = `<strong>${d.name}</strong> — Ranked <strong>#${rank}</strong> by ${currentSort.replace(/([A-Z])/g,' $1').toLowerCase()}. 
-            Overturn rate: <strong style="color:${getColor(d.overturnRate)}">${(d.overturnRate*100).toFixed(0)}%</strong> vs. league avg ${mlgAvg}%. 
-            ${d.challenges} total challenges, flipping <strong>${d.kFlipped} strikeouts</strong> and granting <strong>${d.bbFlipped} extra walks</strong> 
-            — a net value-added of <strong>+${d.valueAdded.toFixed(1)}</strong> runs above the human umpire baseline. 
-            <span style="color:var(--muted);font-size:12px;">(Click again to deselect)</span>`;
-          detail.style.display = 'block';
-        }
-        renderChart();
-      };
-
-      window.sortChart = function(metric) {
-        currentSort = metric;
-        document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-        renderChart();
-        if (selectedTeam) selectTeam(selectedTeam); // refresh detail
-      };
-
-      document.addEventListener('mousemove', function(e) {
-        if (tooltip.style.display === 'block') {
-          tooltip.style.left = (e.clientX + 12) + 'px';
-          tooltip.style.top = (e.clientY - 10) + 'px';
-        }
-      });
-
-      // Initial render + re-render on resize
-      renderChart();
-      let resizeTimer;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(renderChart, 150);
-      });
-    })();
-    </script>
-  </section>
-
-  <!-- ── Writeup ────────────────────────────────────────────────────────── -->
-  <section>
-    <h2>Project Writeup</h2>
-    <div class="writeup-box">
-
-      <h3>What We Have Done So Far</h3>
-      <p>
-        We have built the foundational infrastructure for our explorable explanation, 
-        collecting and cleaning the core 2026 MLB Statcast dataset — over 69,000 pitches 
-        with 118 columns each — and the ABS Challenge Leaderboard tracking 359 batters.
-        Our fetch_data.py pipeline 
-        pulls fresh data directly from Baseball Savant's public CSV export endpoints, 
-        meaning our visualizations automatically reflect the current state of the 2026 season. 
-        We have completed five static exploratory visualizations 
-        that establish the key narrative threads: team-level challenge strategy, individual batter 
-        decision quality, outcome impact on strikeouts and walks, strike zone boundary discrepancies, 
-        and the relationship between challenge frequency and success rate.
-        We have also implemented the first interactive visualization — 
-        the Team Challenge Performance Explorer above — which lets readers sort all 30 MLB teams by 
-        overturn rate, challenge volume, or value added, with hover tooltips showing full detail 
-        and click-to-drill-down for per-team summaries. 
-      </p>
-
-      <h3>What Will Be Most Challenging to Design</h3>
-      <p>
-        By far the most challenging visualization will be the dual strike zone comparison map. 
-        The core difficulty is that the ABS zone is a sharp, rule-defined rectangle whose top and bottom edges 
-        fixed percentages of a batter's measured height, while the human umpire zone is an emergent statistical artifact.
-        A second major design challenge is the real-time data freshness problem. The 2026 season 
-        is actively being played, which means our pipeline must reliably fetch, validate, and 
-        re-render data right up to the submission deadline without introducing gaps or errors 
-        from partial-game data. 
-      </p>
-    </div>
-  </section>
-
-  <!-- ── Static Visualizations ────────────────────────────────────────────── -->
-  <section>
-    <h2>Static Visualizations</h2>
-    <p>
-      Five exploratory visualizations drawn from the live 2026 Baseball Savant data,
-      illustrating the key angles our interactive project will expand upon.
-    </p>
-
-    <div class="figure-block">
-      <img class="fig-img" src="figures/fig1_team_challenge_rate.png"
-           alt="Team Challenge Success Rate" />
-      <div class="fig-caption">
-        <div class="fig-label">Figure 1 — Team Challenge Success Rate</div>
-        <p>
-          Batter challenge overturn rates for all 30 MLB teams (minimum 20 team challenges),
-          ranked by success percentage. Texas leads the league at 63%; Milwaukee sits last
-          at 32%. The dashed line marks the MLB average (~47%), revealing which franchises
-          have already taught their hitters to pick their spots wisely.
-        </p>
-      </div>
-    </div>
-
-    <div class="figure-block">
-      <img class="fig-img" src="figures/fig2_batter_value_added.png"
-           alt="Batter Challenge Value Added" />
-      <div class="fig-caption">
-        <div class="fig-label">Figure 2 — Batter Challenge Value Added vs. Expected</div>
-        <p>
-          Net challenge value above expectation for qualified batters (min. 5 challenges).
-          Players on the right extracted more challenge equity than a random batter in the
-          same situations would; players on the left wasted challenges on low-probability
-          pitches. Davis Schneider (TOR) leads all MLB batters by a wide margin.
-        </p>
-      </div>
-    </div>
-
-    <div class="figure-block">
-      <img class="fig-img" src="figures/fig3_outcome_impact.png"
-           alt="K and BB Flipped by Team" />
-      <div class="fig-caption">
-        <div class="fig-label">Figure 3 — Game Outcomes Flipped by ABS Challenges</div>
-        <p>
-          Number of strikeouts avoided (called strike overturned to ball) versus
-          strikeouts gained (ball overturned to called strike) by team. The yellow line
-          shows net gain — Atlanta and Colorado have given back nearly as many strikeouts
-          as they've avoided, while Detroit and Los Angeles (NL) show strongly positive
-          net challenge returns.
-        </p>
-      </div>
-    </div>
-
-    <div class="figure-block">
-      <img class="fig-img" src="figures/fig4_strike_zone_heatmap.png"
-           alt="Strike Zone Heatmap" />
-      <div class="fig-caption">
-        <div class="fig-label">Figure 4 — Umpire Called Strikes vs. Edge-Zone Called Balls</div>
-        <p>
-          Hexbin density maps for 2026 regular season pitches. Left: where umpires are
-          calling strikes — note the shadow zone below the bottom boundary and the
-          generous inside corner. Right: called balls that landed within 3 inches of the
-          zone boundary — the high-probability challenge territory that well-trained
-          batters are now identifying in real time. The yellow rectangle marks the
-          true ABS strike zone.
-        </p>
-      </div>
-    </div>
-
-    <div class="figure-block">
-      <img class="fig-img" src="figures/fig5_challenge_scatter.png"
-           alt="Challenge Frequency vs Success Rate Scatter" />
-      <div class="fig-caption">
-        <div class="fig-label">Figure 5 — Challenge Frequency vs. Success Rate by Batter</div>
-        <p>
-          Each point is a qualified MLB batter (min. 4 challenges). The color axis
-          shows net value added — green batters are extracting positive value, red
-          batters are destroying it. The quadrant above average success rate / below
-          average frequency contains the most disciplined challengers; the bottom-right
-          quadrant reveals players who challenge often but poorly.
-        </p>
-      </div>
-    </div>
-  </section>
-
-</div><!-- /container -->
+<!-- ── TAKEAWAY ─────────────────────────────────────────────────────────── -->
+<div class="wrap">
+<section id="takeaway">
+  <h2>What ABS Has Revealed</h2>
+  <p>The single most important insight from the first months of ABS is one that no one fully anticipated: <strong>the difficulty of calling balls and strikes isn't a flaw in human performance — it's a property of the problem itself</strong>. A pitch on the corner moves 6 inches in the last 10 feet of flight. Perspective distortion from behind the plate makes the inside corner look different from the outside corner. And the zone itself is a moving target, shifting inch by inch with every batter's stance.</p>
+  <p>Even with the machine available for appeals, teams are only converting roughly half their challenges. Even experienced catchers, who have spent entire careers reading pitch location, are getting it wrong nearly as often as right on the hardest pitches. The human umpire was not failing at an easy task. They were succeeding at an incredibly hard one.</p>
+  <div class="takeaway-box">
+    <p>ABS didn't expose umpires as incompetent. It exposed the strike zone as <strong>the most contested two-square-foot rectangle in professional sports</strong> — and gave every batter, pitcher, and fan a front-row seat to just how close every call really is.</p>
+  </div>
+  <p style="color:var(--muted);font-size:13px;text-align:center;margin-top:24px">Data: <a href="https://baseballsavant.mlb.com/leaderboard/abs-challenges" target="_blank" style="color:var(--blue)">Baseball Savant ABS Leaderboard</a> &amp; <a href="https://baseballsavant.mlb.com/statcast_search" target="_blank" style="color:var(--blue)">Statcast Pitch Data</a> — 2026 MLB Regular Season through May 18, 2026</p>
+</section>
+</div>
 
 <footer>
-  <p>
-    DSC 106 Final Project — UC San Diego · Spring 2026<br />
-    Data: <a href="https://baseballsavant.mlb.com/leaderboard/abs-challenges" target="_blank">Baseball Savant ABS Leaderboard</a> &amp;
-    <a href="https://baseballsavant.mlb.com/statcast_search" target="_blank">Statcast Search</a> (2026 MLB Season, through May 18)
-  </p>
+  DSC 106 Final Project · UC San Diego · Spring 2026 &nbsp;|&nbsp;
+  Andrew Zaletski · Daniel Huang · Lucien Hsiao
 </footer>
 
+<!-- ── TOOLTIP ──────────────────────────────────────────────────────────── -->
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// GLOBALS
+// ══════════════════════════════════════════════════════════════════════════════
+const tt = d3.select('#tooltip');
+const COLORS = {red:'#e63946',blue:'#457b9d',green:'#2a9d8f',yellow:'#e9c46a',muted:'#8892a4',panel:'#1a1d26',dark:'#0f1117'};
+
+function showTT(html){
+  tt.html(html).style('opacity',1);
+}
+function moveTT(event){
+  const x=event.clientX, y=event.clientY;
+  const w=220, pad=14;
+  tt.style('left',(x+pad)+'px').style('top',(y-20)+'px');
+}
+function hideTT(){tt.style('opacity',0)}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VIZ 1: ZONE HEATMAP
+// ══════════════════════════════════════════════════════════════════════════════
+(async function buildZone(){
+  const raw = await d3.json('data/zone_heatmap.json');
+
+  const W=480, H=460, ml=50, mr=16, mt=16, mb=40;
+  const pw=W-ml-mr, ph=H-mt-mb;
+
+  const xScale = d3.scaleLinear().domain([-2.5,2.5]).range([0,pw]);
+  const zScale = d3.scaleLinear().domain([0.2,5.5]).range([ph,0]);
+
+  const svg = d3.select('#zone-chart').append('svg')
+    .attr('width',W).attr('height',H).attr('viewBox',`0 0 ${W} ${H}`)
+    .style('display','block').style('margin','0 auto');
+
+  const g = svg.append('g').attr('transform',`translate(${ml},${mt})`);
+
+  // axes
+  g.append('g').attr('transform',`translate(0,${ph})`)
+    .call(d3.axisBottom(xScale).ticks(5).tickFormat(d=>`${d>0?'+':''}${d} ft`))
+    .call(ax=>{ax.selectAll('text').attr('fill',COLORS.muted).attr('font-size',10);
+               ax.selectAll('line,path').attr('stroke',COLORS.muted).attr('stroke-width',.4)});
+  g.append('g').call(d3.axisLeft(zScale).ticks(6).tickFormat(d=>`${d} ft`))
+    .call(ax=>{ax.selectAll('text').attr('fill',COLORS.muted).attr('font-size',10);
+               ax.selectAll('line,path').attr('stroke',COLORS.muted).attr('stroke-width',.4)});
+
+  // cells layer
+  const cellG = g.append('g').attr('class','cells');
+
+  // zone box layer (on top)
+  const zoneG = g.append('g');
+
+  // ABS zone rectangle (average sz_top~3.4, sz_bot~1.5)
+  const AVG_SZT=3.42, AVG_SZB=1.52, ZONE_W=0.708;
+  function drawZone(sz_top=AVG_SZT,sz_bot=AVG_SZB){
+    zoneG.selectAll('*').remove();
+    zoneG.append('rect')
+      .attr('x', xScale(-ZONE_W)).attr('y', zScale(sz_top))
+      .attr('width', xScale(ZONE_W)-xScale(-ZONE_W))
+      .attr('height', zScale(sz_bot)-zScale(sz_top))
+      .attr('fill','none').attr('stroke',COLORS.yellow).attr('stroke-width',2)
+      .attr('stroke-dasharray','4 3');
+    zoneG.append('text').attr('x',xScale(ZONE_W)+4).attr('y',zScale((sz_top+sz_bot)/2))
+      .attr('fill',COLORS.yellow).attr('font-size',9).attr('font-family','Courier New')
+      .text('ABS ZONE');
+  }
+  drawZone();
+
+  // color scales
+  const csScale  = d3.scaleSequential(d3.interpolateYlOrRd).domain([0,40]);
+  const errScale = d3.scaleSequential(t=>d3.interpolateRdYlGn(1-t)).domain([0,0.5]);
+
+  let viewMode='cs', standMode='both';
+
+  function render(){
+    const cells = raw.cells.filter(c=>c.stand===standMode);
+    const dx = (raw.x_edges[1]-raw.x_edges[0]);
+    const dz = (raw.z_edges[1]-raw.z_edges[0]);
+    const rects = cellG.selectAll('rect').data(cells, d=>`${d.xi}_${d.zi}_${d.stand}`);
+    rects.join(
+      enter=>enter.append('rect')
+        .attr('x', d=>xScale(d.x_center-dx/2))
+        .attr('y', d=>zScale(d.z_center+dz/2))
+        .attr('width', d=>Math.max(1,xScale(d.x_center+dx/2)-xScale(d.x_center-dx/2)))
+        .attr('height',d=>Math.max(1,zScale(d.z_center-dz/2)-zScale(d.z_center+dz/2)))
+        .attr('fill', d=>viewMode==='cs'? csScale(d.n_called_strike): errScale(d.error_rate))
+        .attr('stroke','none').attr('opacity',.88)
+        .on('mouseover',(ev,d)=>{
+          showTT(`<div class="tt-name">Pitch Location</div>
+            <div class="tt-row"><span>x</span><span class="tt-val">${d.x_center.toFixed(2)} ft</span></div>
+            <div class="tt-row"><span>z</span><span class="tt-val">${d.z_center.toFixed(2)} ft</span></div>
+            <div class="tt-row"><span>Called strikes</span><span class="tt-val">${d.n_called_strike}</span></div>
+            <div class="tt-row"><span>Called balls</span><span class="tt-val">${d.n_ball}</span></div>
+            <div class="tt-row"><span>Ump error rate</span><span class="tt-val">${(d.error_rate*100).toFixed(1)}%</span></div>`);
+          moveTT(ev);
+        })
+        .on('mousemove', moveTT).on('mouseout', hideTT),
+      update=>update
+        .attr('fill', d=>viewMode==='cs'? csScale(d.n_called_strike): errScale(d.error_rate))
+    );
+  }
+  render();
+
+  // controls
+  function setView(v){viewMode=v;['cs','err'].forEach(k=>document.getElementById('btn-'+k).classList.toggle('active',k===v));render();}
+  function setStand(s){standMode=s;['both','R','L'].forEach(k=>document.getElementById('btn-'+k).classList.toggle('active',k===s));render();}
+  document.getElementById('btn-cs').onclick=()=>setView('cs');
+  document.getElementById('btn-err').onclick=()=>setView('err');
+  document.getElementById('btn-both').onclick=()=>setStand('both');
+  document.getElementById('btn-R').onclick=()=>setStand('R');
+  document.getElementById('btn-L').onclick=()=>setStand('L');
+})();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VIZ 2: TEAM CHALLENGE BAR CHART
+// ══════════════════════════════════════════════════════════════════════════════
+(async function buildTeam(){
+  const raw = await d3.json('data/team_stats.json');
+  const valid = raw.filter(d=>d.n_challenges>=20 && d.rate!=null);
+  const leagueAvg = d3.mean(valid,d=>d.rate);
+
+  const W=560, H=600, ml=60, mr=20, mt=16, mb=16;
+  const pw=W-ml-mr, ph=H-mt-mb;
+
+  const svg = d3.select('#team-chart').append('svg')
+    .attr('width','100%').attr('viewBox',`0 0 ${W} ${H}`)
+    .style('display','block');
+  const g = svg.append('g').attr('transform',`translate(${ml},${mt})`);
+
+  const xScale=d3.scaleLinear().domain([0,.75]).range([0,pw]);
+  let yScale=d3.scaleBand().range([0,ph]).padding(.28);
+
+  const xAxis=g.append('g').attr('transform',`translate(0,${ph})`);
+  const yAxis=g.append('g');
+  const avgLine=g.append('line').attr('stroke',COLORS.yellow).attr('stroke-width',1.5).attr('stroke-dasharray','5 4');
+  const avgLabel=g.append('text').attr('fill',COLORS.yellow).attr('font-size',10).attr('font-family','Courier New').attr('text-anchor','middle');
+
+  xAxis.call(d3.axisBottom(xScale).ticks(5).tickFormat(d3.format('.0%')))
+    .call(ax=>{ax.selectAll('text').attr('fill',COLORS.muted).attr('font-size',10);
+               ax.selectAll('line,path').attr('stroke','#2a2d3a').attr('stroke-width',.4)});
+
+  const barsG=g.append('g');
+  const labsG=g.append('g');
+
+  function renderTeam(sortKey){
+    const sorted = [...valid].sort((a,b)=>{
+      if(sortKey==='rate') return a.rate-b.rate;
+      if(sortKey==='name') return a.team_abbr.localeCompare(b.team_abbr);
+      return a.n_challenges-b.n_challenges;
+    });
+    yScale.domain(sorted.map(d=>d.team_abbr));
+    yAxis.transition().duration(500)
+      .call(d3.axisLeft(yScale).tickSize(0))
+      .call(ax=>{ax.selectAll('text').attr('fill',COLORS.text).attr('font-size',11)
+                    .attr('font-family','Courier New');
+                 ax.select('.domain').remove()});
+
+    const bars = barsG.selectAll('rect').data(sorted,d=>d.team_abbr);
+    bars.join(
+      enter=>enter.append('rect')
+        .attr('y',d=>yScale(d.team_abbr))
+        .attr('height',yScale.bandwidth())
+        .attr('x',0).attr('width',0)
+        .attr('rx',2)
+        .attr('fill',d=>d.rate>=.55?COLORS.green:d.rate<.40?COLORS.red:COLORS.blue)
+        .attr('opacity',.88)
+        .on('mouseover',(ev,d)=>{
+          showTT(`<div class="tt-name">${d.team_abbr}</div>
+            <div class="tt-row"><span>Challenges</span><span class="tt-val">${d.n_challenges}</span></div>
+            <div class="tt-row"><span>Overturned</span><span class="tt-val">${d.n_overturns}</span></div>
+            <div class="tt-row"><span>Success rate</span><span class="tt-val">${(d.rate*100).toFixed(1)}%</span></div>
+            <div class="tt-row"><span>Ks avoided</span><span class="tt-val">${d.k_flipped}</span></div>
+            <div class="tt-row"><span>BBs avoided</span><span class="tt-val">${d.bb_flipped}</span></div>`);
+          moveTT(ev);
+        })
+        .on('mousemove',moveTT).on('mouseout',hideTT)
+        .call(sel=>sel.transition().duration(500).attr('width',d=>xScale(d.rate))),
+      update=>update
+        .attr('fill',d=>d.rate>=.55?COLORS.green:d.rate<.40?COLORS.red:COLORS.blue)
+        .transition().duration(500)
+        .attr('y',d=>yScale(d.team_abbr))
+        .attr('width',d=>xScale(d.rate))
+    );
+
+    const labs = labsG.selectAll('text').data(sorted,d=>d.team_abbr);
+    labs.join(
+      enter=>enter.append('text').attr('y',d=>yScale(d.team_abbr)+yScale.bandwidth()/2+4)
+        .attr('x',d=>xScale(d.rate)+4).attr('font-size',10).attr('fill',COLORS.muted)
+        .attr('font-family','Courier New')
+        .text(d=>`${(d.rate*100).toFixed(1)}%`),
+      update=>update.transition().duration(500)
+        .attr('y',d=>yScale(d.team_abbr)+yScale.bandwidth()/2+4)
+        .attr('x',d=>xScale(d.rate)+4)
+        .text(d=>`${(d.rate*100).toFixed(1)}%`)
+    );
+
+    avgLine.attr('x1',xScale(leagueAvg)).attr('x2',xScale(leagueAvg)).attr('y1',0).attr('y2',ph);
+    avgLabel.attr('x',xScale(leagueAvg)).attr('y',-5).text(`MLB avg ${(leagueAvg*100).toFixed(1)}%`);
+  }
+  renderTeam('rate');
+
+  let cur='rate';
+  function setSort(s){cur=s;['rate','name','vol'].forEach(k=>document.getElementById('sort-'+k).classList.toggle('active',k===s));renderTeam(s==='vol'?'vol':s==='name'?'name':'rate');}
+  document.getElementById('sort-rate').onclick=()=>setSort('rate');
+  document.getElementById('sort-name').onclick=()=>setSort('name');
+  document.getElementById('sort-vol').onclick=()=>setSort('vol');
+})();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VIZ 3: BATTER SCATTER
+// ══════════════════════════════════════════════════════════════════════════════
+(async function buildScatter(){
+  const raw = await d3.csv('data/abs_batter_leaderboard.csv', d=>({
+    name:d.entity_name, team:d.team_abbr,
+    n_ch:+d.n_challenges, n_ov:+d.n_overturns,
+    rate:+d.n_overturns/+d.n_challenges,
+    net:+d.total_vs_expected,
+  }));
+  const mlb = raw.filter(d=>d.n_ch>0);
+
+  // populate team dropdown
+  const teams=['all',...new Set(mlb.map(d=>d.team).filter(Boolean).sort())];
+  const sel=document.getElementById('team-filter');
+  teams.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t==='all'?'All Teams':t;sel.appendChild(o)});
+
+  const W=560,H=420,ml=54,mr=20,mt=16,mb=44;
+  const pw=W-ml-mr, ph=H-mt-mb;
+
+  const svg=d3.select('#scatter-chart').append('svg')
+    .attr('width','100%').attr('viewBox',`0 0 ${W} ${H}`)
+    .style('display','block');
+  const g=svg.append('g').attr('transform',`translate(${ml},${mt})`);
+
+  const xScale=d3.scaleLinear().domain([0,20]).range([0,pw]);
+  const yScale=d3.scaleLinear().domain([0,1.05]).range([ph,0]);
+  const colorScale=d3.scaleDiverging(d3.interpolateRdYlGn).domain([-6,0,6]);
+
+  g.append('g').attr('transform',`translate(0,${ph})`)
+    .call(d3.axisBottom(xScale).ticks(8))
+    .call(ax=>{ax.selectAll('text').attr('fill',COLORS.muted).attr('font-size',10);
+               ax.selectAll('line,path').attr('stroke','#2a2d3a').attr('stroke-width',.4)});
+  g.append('g').call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format('.0%')))
+    .call(ax=>{ax.selectAll('text').attr('fill',COLORS.muted).attr('font-size',10);
+               ax.selectAll('line,path').attr('stroke','#2a2d3a').attr('stroke-width',.4)});
+
+  g.append('text').attr('x',pw/2).attr('y',ph+36).attr('fill',COLORS.muted)
+    .attr('text-anchor','middle').attr('font-size',11).text('Total Challenges Attempted');
+  g.append('text').attr('transform','rotate(-90)').attr('x',-ph/2).attr('y',-40)
+    .attr('fill',COLORS.muted).attr('text-anchor','middle').attr('font-size',11).text('Challenge Success Rate');
+
+  // avg lines
+  const dotsG=g.append('g');
+  const avgRate=mlb.filter(d=>d.n_ch>=3).reduce((s,d)=>s+d.n_ov,0)/mlb.filter(d=>d.n_ch>=3).reduce((s,d)=>s+d.n_ch,0);
+  const avgCh=d3.mean(mlb.filter(d=>d.n_ch>=3),d=>d.n_ch);
+  g.append('line').attr('x1',xScale(avgCh)).attr('x2',xScale(avgCh)).attr('y1',0).attr('y2',ph)
+    .attr('stroke',COLORS.yellow).attr('stroke-width',1).attr('stroke-dasharray','4 3').attr('opacity',.6);
+  g.append('line').attr('x1',0).attr('x2',pw).attr('y1',yScale(avgRate)).attr('y2',yScale(avgRate))
+    .attr('stroke',COLORS.yellow).attr('stroke-width',1).attr('stroke-dasharray','4 3').attr('opacity',.6);
+
+  let selTeam='all', minCh=3;
+
+  function render(){
+    const data=mlb.filter(d=>d.n_ch>=minCh && (selTeam==='all'||d.team===selTeam) && !isNaN(d.rate));
+    const dots=dotsG.selectAll('circle').data(data,d=>d.name+d.team);
+    dots.join(
+      enter=>enter.append('circle')
+        .attr('cx',d=>xScale(d.n_ch)).attr('cy',d=>yScale(d.rate))
+        .attr('r',0).attr('fill',d=>colorScale(d.net)).attr('opacity',.82)
+        .attr('stroke','#1a1d26').attr('stroke-width',.8)
+        .on('mouseover',(ev,d)=>{
+          d3.select(ev.currentTarget).attr('r',8).attr('stroke',COLORS.yellow).attr('stroke-width',1.5);
+          showTT(`<div class="tt-name">${d.name}</div>
+            <div class="tt-row"><span>Team</span><span class="tt-val">${d.team}</span></div>
+            <div class="tt-row"><span>Challenges</span><span class="tt-val">${d.n_ch}</span></div>
+            <div class="tt-row"><span>Success rate</span><span class="tt-val">${(d.rate*100).toFixed(1)}%</span></div>
+            <div class="tt-row"><span>Value added</span><span class="tt-val">${d.net>0?'+':''}${d.net.toFixed(2)}</span></div>`);
+          moveTT(ev);
+        })
+        .on('mousemove',moveTT)
+        .on('mouseout',(ev)=>{d3.select(ev.currentTarget).attr('r',5).attr('stroke','#1a1d26').attr('stroke-width',.8);hideTT()})
+        .call(s=>s.transition().duration(350).attr('r',5)),
+      update=>update.transition().duration(350)
+        .attr('cx',d=>xScale(d.n_ch)).attr('cy',d=>yScale(d.rate))
+        .attr('fill',d=>colorScale(d.net)),
+      exit=>exit.transition().duration(200).attr('r',0).remove()
+    );
+  }
+  render();
+
+  sel.onchange=()=>{selTeam=sel.value;render()};
+  function setMin(m){minCh=m;['3','5','8'].forEach(k=>document.getElementById('min-'+k).classList.toggle('active',k==m));render();}
+  document.getElementById('min-3').onclick=()=>setMin(3);
+  document.getElementById('min-5').onclick=()=>setMin(5);
+  document.getElementById('min-8').onclick=()=>setMin(8);
+})();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VIZ 4: OUTCOME IMPACT — K / BB FLIPPED
+// ══════════════════════════════════════════════════════════════════════════════
+(async function buildOutcome(){
+  const raw = await d3.json('data/team_stats.json');
+  const data = raw.filter(d=>d.n_challenges>=10);
+
+  const W=700,H=480,ml=56,mr=20,mt=16,mb=48;
+  const pw=W-ml-mr, ph=H-mt-mb;
+
+  const svg=d3.select('#outcome-chart').append('svg')
+    .attr('width','100%').attr('viewBox',`0 0 ${W} ${H}`)
+    .style('display','block');
+  const g=svg.append('g').attr('transform',`translate(${ml},${mt})`);
+
+  const xBand=d3.scaleBand().range([0,pw]).padding(.18);
+  const yScale=d3.scaleLinear().range([ph,0]);
+
+  const xAxisG=g.append('g').attr('transform',`translate(0,${ph})`);
+  const yAxisG=g.append('g');
+  const barsG=g.append('g');
+  const lineG=g.append('g');
+
+  g.append('text').attr('x',pw/2).attr('y',ph+40).attr('fill',COLORS.muted)
+    .attr('text-anchor','middle').attr('font-size',11).text('MLB Team');
+  g.append('text').attr('transform','rotate(-90)').attr('x',-ph/2).attr('y',-44)
+    .attr('fill',COLORS.muted).attr('text-anchor','middle').attr('font-size',11)
+    .text('At-Bat Outcomes Flipped');
+
+  function renderOut(sortKey){
+    const sorted=[...data].sort((a,b)=>{
+      if(sortKey==='net') return (b.bb_flipped-b.k_flipped)-(a.bb_flipped-a.k_flipped);
+      if(sortKey==='k')   return b.k_flipped-a.k_flipped;
+      return a.team_abbr.localeCompare(b.team_abbr);
+    });
+    const allVals=[...sorted.map(d=>d.k_flipped),...sorted.map(d=>d.bb_flipped)];
+    const maxV=d3.max(allVals)+1;
+
+    xBand.domain(sorted.map(d=>d.team_abbr));
+    yScale.domain([0,maxV]);
+
+    xAxisG.transition().duration(500).call(d3.axisBottom(xBand).tickSize(0))
+      .call(ax=>{ax.selectAll('text').attr('fill',COLORS.muted).attr('font-size',9)
+        .attr('transform','rotate(-40)').attr('text-anchor','end').attr('dy','0.3em');
+        ax.select('.domain').attr('stroke','#2a2d3a').attr('stroke-width',.4)});
+    yAxisG.transition().duration(500).call(d3.axisLeft(yScale).ticks(5))
+      .call(ax=>{ax.selectAll('text').attr('fill',COLORS.muted).attr('font-size',10);
+        ax.selectAll('line,path').attr('stroke','#2a2d3a').attr('stroke-width',.4)});
+
+    const bw=xBand.bandwidth()/2-1;
+    // K avoided (green)
+    const kBars=barsG.selectAll('.k-bar').data(sorted,d=>d.team_abbr);
+    kBars.join(
+      enter=>enter.append('rect').attr('class','k-bar')
+        .attr('x',d=>xBand(d.team_abbr)).attr('width',bw).attr('rx',2)
+        .attr('fill',COLORS.green).attr('opacity',.85)
+        .attr('y',ph).attr('height',0)
+        .on('mouseover',(ev,d)=>{
+          showTT(`<div class="tt-name">${d.team_abbr}</div>
+            <div class="tt-row"><span>Ks avoided</span><span class="tt-val" style="color:${COLORS.green}">${d.k_flipped}</span></div>
+            <div class="tt-row"><span>Ks gained vs.</span><span class="tt-val" style="color:${COLORS.red}">${d.bb_flipped}</span></div>
+            <div class="tt-row"><span>Net gain</span><span class="tt-val">${d.bb_flipped-d.k_flipped>0?'+':''}${d.bb_flipped-d.k_flipped}</span></div>`);
+          moveTT(ev);
+        }).on('mousemove',moveTT).on('mouseout',hideTT)
+        .call(s=>s.transition().duration(500).attr('y',d=>yScale(d.k_flipped)).attr('height',d=>ph-yScale(d.k_flipped))),
+      update=>update.transition().duration(500)
+        .attr('x',d=>xBand(d.team_abbr)).attr('y',d=>yScale(d.k_flipped)).attr('height',d=>ph-yScale(d.k_flipped))
+    );
+    // K gained vs (red)
+    const bbBars=barsG.selectAll('.bb-bar').data(sorted,d=>d.team_abbr);
+    bbBars.join(
+      enter=>enter.append('rect').attr('class','bb-bar')
+        .attr('x',d=>xBand(d.team_abbr)+bw+2).attr('width',bw).attr('rx',2)
+        .attr('fill',COLORS.red).attr('opacity',.75)
+        .attr('y',ph).attr('height',0)
+        .on('mouseover',(ev,d)=>{
+          showTT(`<div class="tt-name">${d.team_abbr}</div>
+            <div class="tt-row"><span>Ks avoided</span><span class="tt-val" style="color:${COLORS.green}">${d.k_flipped}</span></div>
+            <div class="tt-row"><span>Ks gained vs.</span><span class="tt-val" style="color:${COLORS.red}">${d.bb_flipped}</span></div>`);
+          moveTT(ev);
+        }).on('mousemove',moveTT).on('mouseout',hideTT)
+        .call(s=>s.transition().duration(500).attr('y',d=>yScale(d.bb_flipped)).attr('height',d=>ph-yScale(d.bb_flipped))),
+      update=>update.transition().duration(500)
+        .attr('x',d=>xBand(d.team_abbr)+bw+2).attr('y',d=>yScale(d.bb_flipped)).attr('height',d=>ph-yScale(d.bb_flipped))
+    );
+  }
+  renderOut('net');
+
+  ['net','k','alpha'].forEach(k=>{
+    document.getElementById('out-'+k).onclick=()=>{
+      ['net','k','alpha'].forEach(j=>document.getElementById('out-'+j).classList.toggle('active',j===k));
+      renderOut(k);
+    };
+  });
+})();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PITCH CALLING GAME
+// ══════════════════════════════════════════════════════════════════════════════
+(async function pitchGame(){
+  const RAW = await d3.json('data/game_pitches.json');
+  const ALL_PITCHES = RAW.pitches;
+  const UMP = RAW.umpire_stats;
+
+  const canvas  = document.getElementById('pitch-canvas');
+  const ctx     = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+
+  // ── Projection setup ──────────────────────────────────────────────────────
+  // Camera: 3.5 ft behind plate front, 3.5 ft high (umpire crouch behind catcher)
+  const CAM = {x:0, y:-3.5, z:3.5};
+  const F = 160;           // focal length (px)
+  const CX = W/2;          // canvas horizontal center
+  const CY = 160;          // horizon in upper third of frame (matches umpire-cam reference)
+  const HORIZON = CY;      // sky/field split
+  const DIRT_Y  = CY + 70; // where grass transitions to infield clay
+
+  function project(x3, y3, z3){
+    const dy = y3 - CAM.y;
+    if(dy <= 0.1) return null;
+    return {
+      sx: CX + F*(x3 - CAM.x)/dy,
+      sy: CY - F*(z3 - CAM.z)/dy,
+      // Ball stays visible as a small dot even at the mound; grows naturally on approach
+      r:  2 + Math.min(13, F * 0.09 / dy),
+    };
+  }
+
+  // ── Pitch physics ─────────────────────────────────────────────────────────
+  // Statcast: vx0/vy0/vz0 and ax/ay/az are at the y=50 reference mark.
+  // Solve y(t)=50+vy0·t+½ay·t²=0 exactly with the quadratic formula.
+  function pitchPos(pitch, t){
+    const disc = pitch.vy0*pitch.vy0 - 100*pitch.ay; // vy0²-2·ay·50
+    const t_plate = (-pitch.vy0 - Math.sqrt(Math.max(0,disc))) / pitch.ay;
+    // Back-solve initial x,z at y=50 from known plate crossing
+    const x0 = pitch.plate_x - pitch.vx0*t_plate - 0.5*pitch.ax*t_plate*t_plate;
+    const z0 = pitch.plate_z - pitch.vz0*t_plate - 0.5*pitch.az*t_plate*t_plate;
+    return {
+      x: x0 + pitch.vx0*t + 0.5*pitch.ax*t*t,
+      y: 50  + pitch.vy0*t + 0.5*pitch.ay*t*t,
+      z: z0 + pitch.vz0*t + 0.5*pitch.az*t*t,
+    };
+  }
+
+  // ── Scene drawing ─────────────────────────────────────────────────────────
+  function drawScene(pitch, showZone){
+    ctx.clearRect(0,0,W,H);
+
+    // ── SKY ──
+    const sky = ctx.createLinearGradient(0,0,0,HORIZON);
+    sky.addColorStop(0,   '#07111e');
+    sky.addColorStop(0.45,'#0f2d52');
+    sky.addColorStop(1,   '#1e5490');
+    ctx.fillStyle=sky; ctx.fillRect(0,0,W,HORIZON);
+
+    // Subtle clouds
+    ctx.save();
+    [[80,55,55,14,0.05],[200,38,75,16,0.04],[310,70,48,11,0.04],[145,88,40,10,0.03]].forEach(([x,y,rx,ry,a])=>{
+      ctx.fillStyle=`rgba(255,255,255,${a})`;
+      ctx.beginPath(); ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2); ctx.fill();
+    });
+    ctx.restore();
+
+    // Distant stadium/wall hint at horizon
+    ctx.fillStyle='rgba(15,30,55,0.7)';
+    ctx.fillRect(0, HORIZON-18, W, 18);
+    // Scoreboard / light towers (decorative)
+    [[60,HORIZON-42,10,42],[320,HORIZON-38,10,38],[190,HORIZON-28,20,18]].forEach(([x,y,w,hh])=>{
+      ctx.fillStyle='rgba(20,38,65,0.9)'; ctx.fillRect(x,y,w,hh);
+    });
+    // Light glow
+    [[65,HORIZON-42],[325,HORIZON-38]].forEach(([x,y])=>{
+      const g=ctx.createRadialGradient(x,y,1,x,y,18);
+      g.addColorStop(0,'rgba(255,240,180,0.18)'); g.addColorStop(1,'rgba(255,240,180,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,18,0,Math.PI*2); ctx.fill();
+    });
+
+    // ── OUTFIELD GRASS ──
+    const grass = ctx.createLinearGradient(0,HORIZON,0,DIRT_Y);
+    grass.addColorStop(0,'#1b4a17');
+    grass.addColorStop(1,'#2c7028');
+    ctx.fillStyle=grass;
+    ctx.fillRect(0,HORIZON,W,DIRT_Y-HORIZON);
+    // Mowed stripes (converging toward VP)
+    const stripeCount=9;
+    for(let i=0;i<stripeCount;i++){
+      if(i%2===0){
+        const lx = (i/stripeCount)*(W+60)-30;
+        const rx = ((i+1)/stripeCount)*(W+60)-30;
+        ctx.fillStyle='rgba(0,0,0,0.10)';
+        ctx.beginPath();
+        ctx.moveTo(lx, HORIZON); ctx.lineTo(rx, HORIZON);
+        ctx.lineTo(rx+(rx-CX)*0.18, DIRT_Y); ctx.lineTo(lx+(lx-CX)*0.18, DIRT_Y);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+
+    // ── INFIELD CLAY / DIRT ──
+    const dirt = ctx.createLinearGradient(0,DIRT_Y,0,H);
+    dirt.addColorStop(0,'#7a4d2f');
+    dirt.addColorStop(0.5,'#6b4228');
+    dirt.addColorStop(1,'#563318');
+    ctx.fillStyle=dirt; ctx.fillRect(0,DIRT_Y,W,H-DIRT_Y);
+    // ── CHALK / PERSPECTIVE LINES ──
+    ctx.lineWidth=1.2; ctx.setLineDash([]);
+    // Left foul line
+    ctx.strokeStyle='rgba(240,240,220,0.18)';
+    ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(CX,HORIZON);ctx.stroke();
+    // Right foul line
+    ctx.beginPath();ctx.moveTo(W,H);ctx.lineTo(CX,HORIZON);ctx.stroke();
+    // Inner perspective guides (converge to VP)
+    ctx.strokeStyle='rgba(240,240,220,0.08)';
+    [CX-62,CX-38,CX+38,CX+62].forEach(bx=>{
+      ctx.beginPath();ctx.moveTo(bx,H);ctx.lineTo(CX,HORIZON);ctx.stroke();
+    });
+
+    // ── PITCHER'S MOUND ──
+    const mndPt = project(0, 55, 0.05);
+    if(mndPt){
+      const mg=ctx.createRadialGradient(mndPt.sx,mndPt.sy+1,1,mndPt.sx,mndPt.sy,14);
+      mg.addColorStop(0,'#9a6e48'); mg.addColorStop(1,'#6e4828');
+      ctx.fillStyle=mg;
+      ctx.beginPath(); ctx.ellipse(mndPt.sx,mndPt.sy,14,5,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#efefef'; ctx.fillRect(mndPt.sx-5,mndPt.sy-1,10,2);
+    }
+
+    // ── HOME PLATE (perspective-projected pentagon at z=0) ──
+    const platePts=[
+      [-0.708, 0.08, 0], // front-left
+      [ 0.708, 0.08, 0], // front-right
+      [ 0.708,-0.42, 0], // right-back
+      [ 0,    -0.71, 0], // back-tip
+      [-0.708,-0.42, 0], // left-back
+    ].map(([x,y,z])=>project(x,y,z)).filter(Boolean);
+    if(platePts.length===5){
+      ctx.fillStyle='#f2f2f2'; ctx.strokeStyle='#bbb'; ctx.lineWidth=1.5;
+      ctx.beginPath();
+      platePts.forEach((p,i)=>i===0?ctx.moveTo(p.sx,p.sy):ctx.lineTo(p.sx,p.sy));
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+
+    // ── BATTER BOXES (perspective-projected rectangles at z=0) ──
+    ctx.strokeStyle='rgba(245,245,230,0.65)'; ctx.lineWidth=1.8; ctx.setLineDash([]);
+    [
+      [[-1.7,-0.75,0],[-0.708,-0.75,0],[-0.708,0.5,0],[-1.7,0.5,0]],
+      [[ 0.708,-0.75,0],[1.7,-0.75,0],[1.7,0.5,0],[0.708,0.5,0]],
+    ].forEach(corners=>{
+      const pts=corners.map(([x,y,z])=>project(x,y,z)).filter(Boolean);
+      if(pts.length===4){
+        ctx.beginPath();
+        pts.forEach((p,i)=>i===0?ctx.moveTo(p.sx,p.sy):ctx.lineTo(p.sx,p.sy));
+        ctx.closePath(); ctx.stroke();
+      }
+    });
+
+    // ── STRIKE ZONE (post-call) ──
+    if(showZone && pitch){
+      const sz_top = pitch.sz_top||3.42, sz_bot = pitch.sz_bot||1.52;
+      const zl = project(-0.708, 0, sz_top);
+      const zr = project( 0.708, 0, sz_top);
+      const zb = project(-0.708, 0, sz_bot);
+      if(zl && zr && zb){
+        const zx=zl.sx, zy=zl.sy, zw=zr.sx-zl.sx, zh=zb.sy-zl.sy;
+        // Zone fill
+        ctx.fillStyle='rgba(233,196,106,0.07)'; ctx.fillRect(zx,zy,zw,zh);
+        // Zone border
+        ctx.strokeStyle=COLORS.yellow; ctx.lineWidth=2.5; ctx.setLineDash([6,4]);
+        ctx.strokeRect(zx,zy,zw,zh); ctx.setLineDash([]);
+        // Label
+        ctx.fillStyle=COLORS.yellow; ctx.font='bold 10px Courier New';
+        ctx.textAlign='center'; ctx.fillText('ABS ZONE',zx+zw/2,zy-8);
+      }
+      // Ball landing marker
+      const pt=project(pitch.plate_x,0,pitch.plate_z);
+      if(pt){
+        const bg=ctx.createRadialGradient(pt.sx-2,pt.sy-2,1,pt.sx,pt.sy,10);
+        bg.addColorStop(0,'#fff'); bg.addColorStop(1,'#e0e0e0');
+        ctx.beginPath(); ctx.arc(pt.sx,pt.sy,10,0,Math.PI*2);
+        ctx.fillStyle=bg; ctx.fill();
+        ctx.strokeStyle='#888'; ctx.lineWidth=1; ctx.stroke();
+      }
+    }
+  }
+
+  let animFrame=null, countdownTimer=null;
+  let pitchQueue=[], pitchIdx=0, pitchResults=[];
+  let currentPitch=null, awaitingCall=false;
+  const COUNTDOWN_MS=2000;
+
+  function samplePitches(){
+    const arr=[...ALL_PITCHES];
+    for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+    return arr.slice(0,10);
+  }
+
+  function updateProgress(idx){
+    document.getElementById('pitch-num').textContent=idx+1;
+    document.getElementById('progress-bar').style.width=`${(idx/10)*100}%`;
+  }
+
+  function enableCallBtns(en){
+    document.getElementById('btn-ball').disabled=!en;
+    document.getElementById('btn-strike').disabled=!en;
+  }
+
+  function clearFeedback(){
+    const fb=document.getElementById('pitch-feedback');
+    fb.textContent=''; fb.className='';
+  }
+
+  function showFeedback(correct, absCall){
+    const fb=document.getElementById('pitch-feedback');
+    if(correct){
+      fb.textContent=`✓ Correct! That was a ${absCall}.`;
+      fb.className='fb-correct';
+    } else {
+      fb.textContent=`✗ Wrong. The ABS zone says: ${absCall}.`;
+      fb.className='fb-wrong';
+    }
+  }
+
+  function showZoneOnCanvas(pitch){
+    drawScene(pitch, true);
+    // draw final ball position
+    const pt=project(pitch.plate_x, 0, pitch.plate_z);
+    if(pt){
+      ctx.beginPath();ctx.arc(pt.sx,pt.sy,10,0,Math.PI*2);
+      ctx.fillStyle='#fff'; ctx.fill();
+      ctx.strokeStyle='#222'; ctx.lineWidth=1; ctx.stroke();
+    }
+  }
+
+  function animatePitch(pitch, onDone){
+    if(animFrame) cancelAnimationFrame(animFrame);
+    // Exact t_plate using quadratic formula (matches pitchPos)
+    const disc     = pitch.vy0*pitch.vy0 - 100*pitch.ay;
+    const t_plate  = (-pitch.vy0 - Math.sqrt(Math.max(0,disc))) / pitch.ay;
+    const ANIM_DURATION = 1500; // ms for the full visual trip
+    let start=null;
+    function frame(ts){
+      if(!start) start=ts;
+      const elapsed = ts - start;
+      const frac    = Math.min(elapsed / ANIM_DURATION, 1);
+      // Linear time → physics time. Perspective foreshortening alone makes the ball
+      // look like it accelerates naturally; double-easing made it feel stuck then jumpy.
+      const t_phys = frac * t_plate;
+      const pos = pitchPos(pitch, t_phys);
+      drawScene(pitch, false);
+      const pt = project(pos.x, pos.y, pos.z);
+      if(pt){
+        const r = pt.r;
+        // Soft glow halo (visible even at small r)
+        ctx.beginPath(); ctx.arc(pt.sx, pt.sy, r+3, 0, Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fill();
+        // Ball gradient (lit from upper-left)
+        const grad = ctx.createRadialGradient(
+          pt.sx-r*.35, pt.sy-r*.35, r*.08,
+          pt.sx,       pt.sy,       r
+        );
+        grad.addColorStop(0,'#ffffff');
+        grad.addColorStop(0.55,'#e8e8e8');
+        grad.addColorStop(1,'#b8b8b8');
+        ctx.beginPath(); ctx.arc(pt.sx, pt.sy, r, 0, Math.PI*2);
+        ctx.fillStyle=grad; ctx.fill();
+        ctx.strokeStyle='rgba(100,100,100,0.5)'; ctx.lineWidth=Math.max(0.4, r*0.1); ctx.stroke();
+        // Red seam curves (only once ball is big enough to see them)
+        if(r > 5){
+          ctx.strokeStyle='rgba(190,30,30,0.55)'; ctx.lineWidth=0.9;
+          ctx.beginPath(); ctx.arc(pt.sx, pt.sy, r*0.58,  0.3, 1.4); ctx.stroke();
+          ctx.beginPath(); ctx.arc(pt.sx, pt.sy, r*0.58, Math.PI+0.3, Math.PI+1.4); ctx.stroke();
+        }
+      }
+      if(frac < 1) animFrame = requestAnimationFrame(frame);
+      else onDone();
+    }
+    animFrame = requestAnimationFrame(frame);
+  }
+
+  function startCountdown(pitch){
+    awaitingCall=true;
+    enableCallBtns(true);
+    const el=document.getElementById('countdown');
+    let remaining=COUNTDOWN_MS;
+    el.style.opacity='1';
+    el.textContent='2';
+    countdownTimer=setInterval(()=>{
+      remaining-=100;
+      const secs=Math.ceil(remaining/1000);
+      el.textContent=secs>0?secs:'';
+      if(remaining<=0){
+        clearInterval(countdownTimer);
+        el.style.opacity='0';
+        if(awaitingCall) handleCall('ball', pitch); // auto-call ball on timeout
+      }
+    },100);
+  }
+
+  function handleCall(userCall, pitch){
+    if(!awaitingCall) return;
+    awaitingCall=false;
+    clearInterval(countdownTimer);
+    document.getElementById('countdown').style.opacity='0';
+    enableCallBtns(false);
+
+    const correct = userCall === pitch.abs_call;
+    pitchResults.push({correct, abs_call:pitch.abs_call, user_call:userCall});
+    showFeedback(correct, pitch.abs_call);
+    showZoneOnCanvas(pitch);
+
+    const info=document.getElementById('pitch-info');
+    info.textContent=`${pitch.pitch_name} · ${pitch.speed} mph · ABS: ${pitch.abs_call.toUpperCase()} · Umpire called: ${pitch.ump_call.toUpperCase()}`;
+
+    setTimeout(()=>{
+      clearFeedback();
+      info.textContent='';
+      pitchIdx++;
+      if(pitchIdx<pitchQueue.length) deliverPitch(pitchQueue[pitchIdx]);
+      else showResults();
+    },2200);
+  }
+
+  function deliverPitch(pitch){
+    currentPitch=pitch;
+    updateProgress(pitchIdx);
+    enableCallBtns(false);
+    clearFeedback();
+    document.getElementById('pitch-info').textContent='Watch the pitch…';
+    animatePitch(pitch,()=>{
+      document.getElementById('pitch-info').textContent='Call it!';
+      startCountdown(pitch);
+    });
+  }
+
+  function showResults(){
+    document.getElementById('game-screen').style.display='none';
+    document.getElementById('results-screen').style.display='block';
+    document.getElementById('progress-bar').style.width='100%';
+
+    const n=pitchResults.length;
+    const correct=pitchResults.filter(r=>r.correct).length;
+    const overall=correct/n;
+
+    const strikeItems=pitchResults.filter(r=>r.abs_call==='strike');
+    const ballItems  =pitchResults.filter(r=>r.abs_call==='ball');
+    const strikeAcc=strikeItems.length>0? strikeItems.filter(r=>r.correct).length/strikeItems.length : null;
+    const ballAcc  =ballItems.length>0  ? ballItems.filter(r=>r.correct).length/ballItems.length   : null;
+
+    function pct(v){ return v==null?'N/A':`${(v*100).toFixed(0)}%`; }
+    function colorClass(user,ump){ return user>ump+.03?'better':user<ump-.03?'worse':'same'; }
+
+    document.getElementById('res-overall').textContent=pct(overall);
+    document.getElementById('res-overall').className=`value ${colorClass(overall,UMP.overall)}`;
+    document.getElementById('ump-overall').textContent=pct(UMP.overall);
+
+    document.getElementById('res-strike').textContent=pct(strikeAcc);
+    if(strikeAcc!=null) document.getElementById('res-strike').className=`value ${colorClass(strikeAcc,UMP.strike)}`;
+    document.getElementById('ump-strike').textContent=pct(UMP.strike);
+
+    document.getElementById('res-ball').textContent=pct(ballAcc);
+    if(ballAcc!=null) document.getElementById('res-ball').className=`value ${colorClass(ballAcc,UMP.ball)}`;
+    document.getElementById('ump-ball').textContent=pct(UMP.ball);
+
+    const diff=overall-UMP.overall;
+    document.getElementById('res-vs').textContent=`${diff>=0?'+':''}${(diff*100).toFixed(0)}%`;
+    document.getElementById('res-vs').className=`value ${diff>=0?'better':'worse'}`;
+    const verb=diff>.05?'significantly better than':diff>.01?'better than':diff<-.05?'significantly worse than':diff<-.01?'worse than':'on par with';
+    document.getElementById('res-verdict').textContent=`You were ${verb} the average MLB umpire.`;
+  }
+
+  function startGame(){
+    pitchQueue=samplePitches();
+    pitchIdx=0; pitchResults=[]; awaitingCall=false;
+    document.getElementById('start-screen').style.display='none';
+    document.getElementById('results-screen').style.display='none';
+    document.getElementById('game-screen').style.display='block';
+    updateProgress(0);
+    drawScene(null,false);
+    deliverPitch(pitchQueue[0]);
+  }
+
+  document.getElementById('start-btn').onclick=startGame;
+  document.getElementById('play-again-btn').onclick=startGame;
+  document.getElementById('btn-ball').onclick=()=>{if(awaitingCall) handleCall('ball',currentPitch)};
+  document.getElementById('btn-strike').onclick=()=>{if(awaitingCall) handleCall('strike',currentPitch)};
+
+  // initial canvas draw
+  drawScene(null,false);
+})();
+</script>
 </body>
 </html>
